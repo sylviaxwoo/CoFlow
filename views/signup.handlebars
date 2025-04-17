@@ -1,0 +1,132 @@
+<h1>Sign Up</h1>
+{{#if error}}
+    <p class="error">{{error}}</p>
+{{/if}}
+<form action="/auth/signup" method="POST" id="signup-form">
+    <h2>Basic Information</h2>
+    <div class="form-signup required">
+        <label for="userName">Username:</label>
+        <input type="text" id="userName" name="userName" required>
+        <div class="error-message" id="userName-error"></div>
+    </div>
+    <div class="form-signup required">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" required>
+        <div class="error-message" id="firstName-error"></div>
+    </div>
+    <div class="form-signup required">
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" required>
+        <div class="error-message" id="lastName-error"></div>
+    </div>
+    <div class="form-signup required">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <div class="error-message" id="email-error"></div>
+    </div>
+    <div class="form-signup required">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <div class="error-message" id="password-error"></div>
+    </div>
+
+    <h2>Additional Information</h2>
+    <div class="form-signup">
+        <label for="bio">Bio:</label>
+        <textarea id="bio" name="bio"></textarea>
+        <div class="error-message" id="bio-error"></div>
+    </div>
+
+    <div class="form-signup">
+        <label>Gender:</label>
+        <div>
+            <input type="radio" id="gender-male" name="gender" value="Male">
+            <label for="gender-male">Male</label>
+        </div>
+        <div>
+            <input type="radio" id="gender-female" name="gender" value="Female">
+            <label for="gender-female">Female</label>
+        </div>
+        <div>
+            <input type="radio" id="gender-other" name="gender" value="Other">
+            <label for="gender-other">Other</label>
+        </div>
+        <div class="error-message" id="gender-error"></div>
+    </div>
+
+
+<div class="form-signup">
+        <label for="state">State (USA):</label>
+        <select id="state" name="state">
+            <option value="">Select State</option>
+            </select>
+        <div class="error-message" id="state-error"></div>
+    </div>
+    
+    <div class="form-signup">
+        <label for="city">City (USA):</label>
+        <input type="text" id="city" name="city">
+        <div class="error-message" id="city-error"></div>
+    </div>
+
+    
+
+    <div class="form-signup">
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob" name="dob">
+        <div class="error-message" id="dob-error"></div>
+    </div>
+
+    <div class="form-signup">
+        <label for="courses">Courses (comma-separated):</label>
+        <input type="text" id="courses" name="courses">
+        <div class="error-message" id="courses-error"></div>
+    </div>
+
+    <div class="form-signup education">
+        <label>Education (Up to 5):</label>
+        <div id="education-container">
+            <div class="education-item">
+                <h3>Education 1</h3>
+                <div class="nested-form-signup">
+                    <label for="school-0">School Name:</label>
+                    <input type="text" id="school-0" name="education[0][schoolName]">
+                </div>
+                <div class="nested-form-signup">
+                    <label for="educationLevel-0">Education Level:</label>
+                    <input type="text" id="educationLevel-0" name="education[0][educationLevel]">
+                </div>
+                <div class="nested-form-signup">
+                    <label for="major-0">Major:</label>
+                    <input type="text" id="major-0" name="education[0][major]">
+                </div>
+                <div class="nested-form-signup">
+                    <label for="startDate-0">Start Date:</label>
+                    <input type="date" id="startDate-0" name="education[0][startDate]">
+                </div>
+                <div class="nested-form-signup">
+                    <label for="endDate-0">End Date:</label>
+                    <input type="date" id="endDate-0" name="education[0][endDate]">
+                </div>
+                <button type="button" class="remove-education-btn" data-index="0">- Remove</button>
+            </div>
+        </div>
+        <button type="button" id="add-education-btn">+ Add Education</button>
+        <div class="error-message" id="education-error"></div>
+    </div>
+
+    <div class="form-signup required">
+        <input type="checkbox" id="terms" name="terms" required>
+        <label for="terms">I agree to the <a href="/policy/terms" target="_blank">Terms of Use</a></label>
+        <div class="error-message" id="terms-error"></div>
+    </div>
+
+    <div class="form-signup required">
+        <input type="checkbox" id="privacy" name="privacy" required>
+        <label for="privacy">I have read and agree to the <a href="/policy/privacy" target="_blank">Privacy Policy</a></label>
+        <div class="error-message" id="privacy-error"></div>
+    </div>
+
+    <button type="submit">Sign Up</button>
+    <p>Already have an account? <a href="/auth/login">Login</a></p>
+</form>
