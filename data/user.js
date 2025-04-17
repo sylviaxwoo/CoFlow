@@ -1,4 +1,4 @@
-import { users } from '../config/mongoCollections'
+import { users } from '../config/mongoCollections.js'
 import Validation from '../helpers.js'
 
 async function createUser(userData) {

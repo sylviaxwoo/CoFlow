@@ -1,7 +1,6 @@
 import { Router } from 'express';
 const router = Router();
 import bcrypt from 'bcrypt';
-import * as authdata from '../data/auth.js';
 import * as userdata from '../data/user.js';
 
 
