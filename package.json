@@ -1,0 +1,19 @@
+{
+    "dependencies": {
+        "bcrypt": "^5.1.1",
+        "express": "^5.1.0",
+        "express-handlebars": "^8.0.1",
+        "mongodb": "^6.15.0"
+    },
+    "name": "coflow",
+    "version": "1.0.0",
+    "description": "Repository will be made private once files are added.",
+    "main": "app.js",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node app.js"
+    },
+    "author": "Team11",
+    "license": "ISC"
+}

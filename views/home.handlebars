@@ -1,0 +1,9 @@
+<h1>Welcome to CoFlow!</h1>
+<p>This is the main page content. You can add information about your website here.</p>
+
+{{#if user}}
+    <p>You are logged in as {{user.userName}}.</p>
+    <p><a href="/profile">View your profile</a>.</p>
+{{else}}
+    <p>Please <a href="/auth/signup">sign up</a> or <a href="/auth/login">log in</a> to access more features.</p>
+{{/if}}

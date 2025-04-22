@@ -1,0 +1,11 @@
+<h1>User Profile</h1>
+{{#if user}}
+    <p><strong>Username:</strong> {{user.userName}}</p>
+    <p><strong>First Name:</strong> {{user.firstName}}</p>
+    <p><strong>Last Name:</strong> {{user.lastName}}</p>
+    <p><strong>Email:</strong> {{user.email}}</p>
+    <p><a href="/logout">Logout</a></p>
+{{else}}
+    <p>You are not logged in.</p>
+    <p><a href="/login">Login</a></p>
+{{/if}}

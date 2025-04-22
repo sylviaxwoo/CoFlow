@@ -1,0 +1,186 @@
+/* Compact Signup Form CSS */
+
+h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.error {
+    color: red;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border: 1px solid #e74c3c;
+    background-color: #fdecea;
+    border-radius: 0.25rem;
+}
+
+#signup-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    background-color: #f9f9f9;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+h2 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: #555;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.form-signup {
+    margin-bottom: 1rem;
+}
+
+.form-signup label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
+    color: #333;
+    font-weight: bold;
+}
+
+.form-signup.required label::after {
+    content: " *";
+    color: red;
+}
+
+.form-signup input[type="text"],
+.form-signup input[type="email"],
+.form-signup input[type="password"],
+.form-signup input[type="date"],
+.form-signup textarea,
+.form-signup select {
+    width: calc(100% - 0.75rem);
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+.form-signup textarea {
+    min-height: 80px;
+}
+
+.form-signup>div {
+    margin-bottom: 0.3rem;
+}
+
+.form-signup input[type="radio"] {
+    margin-right: 0.3rem;
+}
+
+.form-signup label[for^="gender-"] {
+    font-weight: normal;
+    margin-right: 0.8rem;
+}
+
+.education-item {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+}
+
+.education-item h3 {
+    margin-top: 0;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+    color: #444;
+}
+
+.nested-form-signup {
+    margin-bottom: 0.8rem;
+}
+
+.nested-form-signup label {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 0.85rem;
+    color: #555;
+    font-weight: bold;
+}
+
+.nested-form-signup input[type="text"],
+.nested-form-signup input[type="date"] {
+    width: calc(100% - 0.75rem);
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 0.2rem;
+    box-sizing: border-box;
+    font-size: 0.9rem;
+}
+
+.remove-education-btn,
+#add-education-btn,
+button[type="submit"] {
+    padding: 0.7rem 1rem;
+    border: none;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.remove-education-btn {
+    background-color: #e74c3c;
+    color: white;
+    margin-top: 0.5rem;
+}
+
+.remove-education-btn:hover {
+    background-color: #c0392b;
+}
+
+#add-education-btn {
+    background-color: #2ecc71;
+    color: white;
+    margin-top: 0.8rem;
+}
+
+#add-education-btn:hover {
+    background-color: #27ae60;
+}
+
+button[type="submit"] {
+    display: block;
+    width: 100%;
+    background-color: #007bff;
+    color: white;
+    margin-top: 1.5rem;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+}
+
+#signup-form p {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #777;
+    text-align: center;
+}
+
+#signup-form p a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+#signup-form p a:hover {
+    text-decoration: underline;
+}
+
+.form-signup.education #education-container {
+    margin-top: 0.5rem;
+}
