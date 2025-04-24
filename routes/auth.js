@@ -57,6 +57,16 @@ router.route('/signup')
             req.session.user = { id: newUser._id, userName: newUser.userName };
             res.redirect('/profile');
 
+            // res.render('error', { title: 'Signup Successful', message: `${userName}, Your account has been created successfully.` });
+            //     <
+            //     p > Signup successful!Redirecting to your profile... < /p> <
+            //     script >
+            //     setTimeout(() => {
+            //         window.location.href = '/profile';
+            //     }, 2000); // Redirect after 2 seconds
+            // <
+            // /script>
+
         } catch (error) {
             console.error('Error during signup:', error);
             res.render('signup', { title: 'Sign Up', error: 'An error occurred during signup.' });
@@ -70,9 +80,9 @@ router.route('/login')
         const { userName, password } = req.body;
 
         try {
-            const user = await findUserByUsername(userName);
+            const user = await userdata.findUserByUsername(userName);
             if (!user) {
-                return res.render('login', { title: 'Login', error: 'Invalid username or password.' });
+                return res.render('login', { title: 'Login', error: `No user find with ${userName}` });
             }
 
             const passwordMatch = await bcrypt.compare(password, user.hashedPassword);
@@ -92,7 +102,7 @@ router.route('/login')
 router.route('/logout')
     .get(async(req, res) => {
         req.session.destroy(() => {
-            res.redirect('/login');
+            res.redirect('/auth/login');
         })
     });
 export default router;
