@@ -2,15 +2,31 @@ import express from 'express';
 const app = express();
 import configRoutes from './routes/index.js';
 import { engine } from 'express-handlebars'; // Correct import for ESM
-
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import path from "path";
+import { dbConnection, getMongoClient } from './config/mongoConnection.js';
 
+const client = await getMongoClient(); // Get the MongoClient instance
+const db = await dbConnection();
 
 app.use('/public', express.static('public'));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(session({
+    secret: 'your-secret-key', // Replace with a strong, random secret
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+        client: client,
+        dbName: db.databaseName, // Pass the database name
+        collectionName: 'sessions'
+    }),
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 // 1 day
+    }
+}));
 app.engine('handlebars', engine({
     defaultLayout: 'main',
     helpers: {

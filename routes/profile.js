@@ -4,7 +4,7 @@ import * as profiledata from '../data/user.js';
 
 
 
-router.route('/profile').get(async(req, res) => {
+router.route('/').get(async(req, res) => {
     try {
         const user = await profiledata.findUserById(req.session.user.id);
         res.render('profile', { title: 'Profile', user: user });

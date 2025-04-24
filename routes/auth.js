@@ -2,7 +2,7 @@ import { Router } from 'express';
 const router = Router();
 import bcrypt from 'bcrypt';
 import * as userdata from '../data/user.js';
-
+import Validation from '../helpers.js'
 
 
 router.route('/signup')
@@ -14,7 +14,7 @@ router.route('/signup')
 
         console.log('Signup Form Data:', formData);
 
-        const { userName, firstName, lastName, email, password, bio, gender, city, state, dob, courses, education, terms, privacy } = req.body;
+        let { userName, firstName, lastName, email, password, bio, gender, city, state, dob, courses, education, terms, privacy } = req.body;
 
         try {
             const existingUsername = await userdata.findUserByUsername(userName);
@@ -26,10 +26,34 @@ router.route('/signup')
                 return res.render('signup', { title: 'Sign Up', error: 'Email already registered.' });
             }
 
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const newUser = { userName, firstName, lastName, email, hashedPassword, bio, gender, city, state, dob, courses, education }; // Include other fields in your user object
-            await userdata.createUser(newUser);
+            if (!userName ||
+                !firstName ||
+                !lastName ||
+                !email ||
+                !password ||
+                !terms ||
+                !privacy
+            )
+                throw 'basic info fields need to have valid values';
+            userName = Validation.checkString(userName, "Validate username").toLowerCase();
+            firstName = Validation.checkString(firstName, "Validate firstName").toLowerCase();
+            lastName = Validation.checkString(lastName, "Validate lastName").toLowerCase();
+            email = Validation.checkEmail(email).toLowerCase();
+            password = Validation.checkPassword(password, "hashedPassword");
 
+            courses = courses != '' ? courses.split(',').map(element => element.trim()) : null;
+            bio = bio ? Validation.checkString(bio, "bio") : '';
+            gender = gender ? Validation.checkGender(gender, "gender") : '';
+            city = city ? Validation.checkString(city, "city") : '';
+            state = state ? Validation.checkString(state, "state") : '';
+            dob = dob ? Validation.checkDate(dob) : '';
+            courses = courses ? Validation.checkStringArray(courses) : [];
+            education = education ? Validation.checkEducation(education) : [];
+            if (terms != 'on' || privacy != 'on') throw 'privacy and term must be agreed'
+
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+            let newUser = await userdata.createUser(userName, firstName, lastName, email, hashedPassword, bio, gender, city, state, dob, courses, education, terms, privacy);
             req.session.user = { id: newUser._id, userName: newUser.userName };
             res.redirect('/profile');
 
