@@ -194,8 +194,24 @@ const exportedMethods = {
         password = password.trim();
         if (password.length === 0)
             throw `Error: ${varName} cannot be an empty string or string with just spaces`;
-        // Note: We're not checking if it's only digits here
         return password;
+    },
+    getAge(dob) {
+        dob = this.checkDate(dob);
+        dob = new Date(dob);
+        if (isNaN(dob.getTime())) {
+            throw "Invalid date"
+        }
+        const now = new Date();
+
+        let age = now.getFullYear() - dob.getFullYear();
+
+        const monthdif = now.getMonth() - dob.getMonth();
+        if (monthdif < 0 || (monthdif === 0 && now.getDate() < dob.getDate())) {
+            age = age - 1;
+        }
+
+        return age;
     }
 };
 

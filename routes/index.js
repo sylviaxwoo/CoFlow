@@ -2,12 +2,14 @@ import profileRoutes from './profile.js';
 import authRoutes from './auth.js';
 import homeRoutes from './home.js';
 import policyRoutes from './policy.js';
+import adminRoutes from './admin.js';
 import path from 'path';
 import { static as staticDir } from 'express';
 
 const constructorMethod = (app) => {
     app.use('/', homeRoutes);
     app.use('/auth', authRoutes);
+    app.use('/admin', adminRoutes);
     app.use('/profile', profileRoutes);
     app.use('/policy', policyRoutes);
     app.use('/public', staticDir('public'));

@@ -1,6 +1,7 @@
 import { users } from '../config/mongoCollections.js'
 import Validation from '../helpers.js'
 import { ObjectId } from 'mongodb';
+import bcrypt from 'bcrypt';
 async function createUser(userName, firstName, lastName, email, hashedPassword, bio, gender, city, state, dob, courses, education, terms, privacy) {
     if (!userName ||
         !firstName ||
@@ -11,6 +12,7 @@ async function createUser(userName, firstName, lastName, email, hashedPassword, 
         !privacy
     )
         throw 'basic info fields need to have valid values';
+
     userName = Validation.checkString(userName, "Validate username").toLowerCase();
     firstName = Validation.checkString(firstName, "Validate firstName").toLowerCase();
     lastName = Validation.checkString(lastName, "Validate lastName").toLowerCase();
@@ -25,24 +27,41 @@ async function createUser(userName, firstName, lastName, email, hashedPassword, 
     courses = courses ? Validation.checkStringArray(courses) : [];
     education = education ? Validation.checkEducation(education) : [];
     if (terms != 'on' || privacy != 'on') throw 'privacy and term must be agreed'
+
+    const userCollection = await users();
+    let findName = await findUserByUsername(userName);
+    if (findName) throw "userName already exist"
+    let findemail = await findUserByEmail(email);
+    if (findemail) throw "email already exist"
+
     let newuser = {
         userName: userName,
         firstName: firstName,
         lastName: lastName,
         email: email,
-        password: hashedPassword,
+        hashedPassword: hashedPassword,
         bio: bio,
         gender: gender,
         state: state,
         city: city,
+        age: dob != '' ? Validation.getAge(dob) : '',
         dob: dob,
         courses: courses,
         education: education,
         terms: terms,
-        privacy: privacy
+        privacy: privacy,
+        profilePicture: '',
+        rating: '',
+        badgeIds: [],
+        schedule: [],
+        notificationSettings: {},
+        createdGroups: [],
+        joinedGroups: [],
+        role: "user"
+
     }
 
-    const userCollection = await users();
+
     const newInsertInformation = await userCollection.insertOne(newuser);
     if (!newInsertInformation.insertedId) throw 'Insert failed!';
     return await this.findUserById(newInsertInformation.insertedId.toString());
@@ -52,7 +71,7 @@ async function findUserByUsername(username) {
     if (!username) throw 'You must provide an username to search for';
     username = Validation.checkString(username, "check username");
     const userCollection = await users();
-    const findUser = await userCollection.findOne({ username: username });
+    const findUser = await userCollection.findOne({ userName: username });
     if (findUser === null) return null;
     findUser._id = findUser._id.toString();
     return findUser;
@@ -84,7 +103,9 @@ async function getAllUsers() {
     return userList;
 };
 
-async function updateUser() {
+async function updateUser(userName, firstName, lastName, email,
+    hashedPassword, bio, gender, city, state, dob, courses, education,
+    badgeIds, profilePicture, rating, notificationSettings, createdGroups, schedule, joinedGroups) {
 
 };
 
@@ -104,8 +125,21 @@ async function removeUser(userId) {
     }
 };
 
-async function checkLogin() {
+async function checkLogin(userName, password) {
+    if (!userName || !password) throw "All fields are required"
+    userName = Validation.checkString(userName);
+    password = Validation.checkPassword(password, "password");
+    let findUser = await findUserByUsername(userName);
+    console.log(findUser)
+    if (!findUser) throw "Either userName or password is wrong";
+
+    const match = await bcrypt.compare(password, findUser.hashedPassword);
+    if (match) {
+        return findUser;
+    } else {
+        throw "Either userName or password is wrong"
+    }
 
 };
 
-export { createUser, findUserByEmail, findUserByUsername, findUserById, getAllUsers, updateUser, removeUser };
+export { createUser, findUserByEmail, findUserByUsername, findUserById, getAllUsers, updateUser, removeUser, checkLogin };

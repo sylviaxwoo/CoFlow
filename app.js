@@ -3,7 +3,7 @@ const app = express();
 import configRoutes from './routes/index.js';
 import { engine } from 'express-handlebars'; // Correct import for ESM
 import session from 'express-session';
-import MongoStore from 'connect-mongo';
+import middleware from './middleware.js';
 import path from "path";
 import { dbConnection, getMongoClient } from './config/mongoConnection.js';
 
@@ -15,14 +15,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
-    secret: 'your-secret-key', // Replace with a strong, random secret
+    name: 'CoFlow',
+    secret: 'your-secret-key',
     resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-        client: client,
-        dbName: db.databaseName, // Pass the database name
-        collectionName: 'sessions'
-    }),
+    saveUninitialized: true,
     cookie: {
         maxAge: 1000 * 60 * 60 * 24 // 1 day
     }
@@ -36,6 +32,7 @@ app.engine('handlebars', engine({
 })); // Use the imported 'engine'
 app.set('view engine', 'handlebars');
 
+app.use(middleware.loggingMiddleware)
 configRoutes(app);
 
 app.listen(3000, () => {
