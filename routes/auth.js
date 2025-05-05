@@ -2,11 +2,12 @@ import { Router } from 'express';
 const router = Router();
 import bcrypt from 'bcrypt';
 import * as userdata from '../data/user.js';
-
+import middleware from '../middleware.js';
+import Validation from '../helpers.js'
 
 
 router.route('/signup')
-    .get(async(req, res) => {
+    .get(middleware.signupRouteMiddleware, async(req, res) => {
         res.render('signup', { title: 'Sign Up' });
     })
     .post(async(req, res) => {
@@ -14,7 +15,7 @@ router.route('/signup')
 
         console.log('Signup Form Data:', formData);
 
-        const { userName, firstName, lastName, email, password, bio, gender, city, state, dob, courses, education, terms, privacy } = req.body;
+        let { userName, firstName, lastName, email, password, bio, gender, city, state, dob, courses, education, terms, privacy } = req.body;
 
         try {
             const existingUsername = await userdata.findUserByUsername(userName);
@@ -26,12 +27,43 @@ router.route('/signup')
                 return res.render('signup', { title: 'Sign Up', error: 'Email already registered.' });
             }
 
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const newUser = { userName, firstName, lastName, email, hashedPassword, bio, gender, city, state, dob, courses, education }; // Include other fields in your user object
-            await userdata.createUser(newUser);
+            if (!userName ||
+                !firstName ||
+                !lastName ||
+                !email ||
+                !password ||
+                !terms ||
+                !privacy
+            )
+                throw 'basic info fields need to have valid values';
+            userName = Validation.checkString(userName, "Validate username").toLowerCase();
+            firstName = Validation.checkString(firstName, "Validate firstName").toLowerCase();
+            lastName = Validation.checkString(lastName, "Validate lastName").toLowerCase();
+            email = Validation.checkEmail(email).toLowerCase();
+            password = Validation.checkPassword(password, "password");
 
-            req.session.user = { id: newUser._id, userName: newUser.userName };
-            res.redirect('/profile');
+            courses = courses != '' ? courses.split(',').map(element => element.trim()) : null;
+            bio = bio ? Validation.checkString(bio, "bio") : '';
+            gender = gender ? Validation.checkGender(gender, "gender") : '';
+            city = city ? Validation.checkString(city, "city") : '';
+            state = state ? Validation.checkString(state, "state") : '';
+            dob = dob ? Validation.checkDate(dob) : '';
+            courses = courses ? Validation.checkStringArray(courses) : [];
+            education = education ? Validation.checkEducation(education) : [];
+            if (terms != 'on' || privacy != 'on') throw 'privacy and term must be agreed'
+
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+            let newUser = await userdata.createUser(userName, firstName, lastName, email, hashedPassword, bio, gender, city, state, dob, courses, education, terms, privacy);
+            req.session.user = {
+                id: newUser._id,
+                userName: newUser.userName,
+                firstName: newUser.firstName,
+                lastName: newUser.lastName,
+                gender: newUser.gender,
+                role: "user"
+            };
+            res.redirect('/auth/login');
 
         } catch (error) {
             console.error('Error during signup:', error);
@@ -39,36 +71,39 @@ router.route('/signup')
         }
     });
 router.route('/login')
-    .get(async(req, res) => {
+    .get(middleware.loginRouteMiddleware, async(req, res) => {
         res.render('login', { title: 'Login' });
     })
     .post(async(req, res) => {
-        const { userName, password } = req.body;
+        var { userName, password } = req.body;
 
         try {
-            const user = await findUserByUsername(userName);
-            if (!user) {
-                return res.render('login', { title: 'Login', error: 'Invalid username or password.' });
-            }
+            userName = Validation.checkString(userName);
+            password = Validation.checkPassword(password);
+            // let user = await userdata.findUserByUsername(userName);
 
-            const passwordMatch = await bcrypt.compare(password, user.hashedPassword);
-            if (!passwordMatch) {
-                return res.render('login', { title: 'Login', error: 'Invalid username or password.' });
-            }
-
-            req.session.user = { id: user._id, userName: user.userName };
+            let finduser = await userdata.checkLogin(userName, password);
+            if (!finduser) throw "No user find"
+            req.session.user = {
+                id: finduser._id,
+                userName: finduser.userName,
+                firstName: finduser.firstName,
+                lastName: finduser.lastName,
+                gender: finduser.gender,
+                role: "user"
+            };
             res.redirect('/profile');
 
         } catch (error) {
             console.error('Error during login:', error);
-            res.render('login', { title: 'Login', error: 'An error occurred during login.' });
+            res.render('login', { title: 'Login', error: error });
         }
     });
 
 router.route('/logout')
-    .get(async(req, res) => {
+    .get(middleware.signoutRouteMiddleware, async(req, res) => {
         req.session.destroy(() => {
-            res.redirect('/login');
+            res.redirect('/auth/login');
         })
     });
 export default router;

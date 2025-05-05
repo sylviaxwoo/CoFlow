@@ -12,6 +12,14 @@ export const dbConnection = async() => {
 
     return _db;
 };
+export const getMongoClient = async() => {
+    if (!_connection) {
+        _connection = await MongoClient.connect(mongoConfig.serverUrl);
+        _db = _connection.db(mongoConfig.database);
+    }
+    return _connection;
+};
+
 export const closeConnection = async() => {
     await _connection.close();
 };

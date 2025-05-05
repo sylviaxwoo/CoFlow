@@ -49,6 +49,17 @@ h2 {
     color: red;
 }
 
+.form-signup.radio {
+    display: flex;
+    flex-direction: row;
+}
+
+.form-signup.radio div {
+    margin-left: 5px;
+    display: flex;
+    flex-direction: row;
+}
+
 .form-signup input[type="text"],
 .form-signup input[type="email"],
 .form-signup input[type="password"],
