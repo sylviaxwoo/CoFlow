@@ -13,7 +13,7 @@ async function createUser(userName, firstName, lastName, email, hashedPassword, 
     )
         throw 'basic info fields need to have valid values';
 
-    userName = Validation.checkString(userName, "Validate username").toLowerCase();
+    userName = Validation.checkString(userName, "Validate username");
     firstName = Validation.checkString(firstName, "Validate firstName").toLowerCase();
     lastName = Validation.checkString(lastName, "Validate lastName").toLowerCase();
     email = Validation.checkEmail(email).toLowerCase();
