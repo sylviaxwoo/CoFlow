@@ -27,7 +27,8 @@ app.engine('handlebars', engine({
     defaultLayout: 'main',
     helpers: {
         getCurrentYear: () => new Date().getFullYear(),
-        eq: (v1, v2) => v1 === v2 // Register the 'eq' helper
+        eq: (v1, v2) => v1 === v2, // Register the 'eq' helper
+        add: (v1, v2) => v1 + v2
     }
 })); // Use the imported 'engine'
 app.set('view engine', 'handlebars');

@@ -60,14 +60,13 @@ router.route('/signup')
                 userName: newUser.userName,
                 firstName: newUser.firstName,
                 lastName: newUser.lastName,
-                gender: newUser.gender,
                 role: "user"
             };
             res.redirect('/auth/login');
 
         } catch (error) {
             console.error('Error during signup:', error);
-            res.render('signup', { title: 'Sign Up', error: 'An error occurred during signup.' });
+            res.render('signup', { title: 'Sign Up', error: error });
         }
     });
 router.route('/login')
@@ -78,9 +77,8 @@ router.route('/login')
         var { userName, password } = req.body;
 
         try {
-            userName = Validation.checkString(userName);
-            password = Validation.checkPassword(password);
-            // let user = await userdata.findUserByUsername(userName);
+            userName = Validation.checkUserName(userName);
+            password = Validation.checkString(password);
 
             let finduser = await userdata.checkLogin(userName, password);
             if (!finduser) throw "No user find"
@@ -89,7 +87,6 @@ router.route('/login')
                 userName: finduser.userName,
                 firstName: finduser.firstName,
                 lastName: finduser.lastName,
-                gender: finduser.gender,
                 role: "user"
             };
             res.redirect('/profile');

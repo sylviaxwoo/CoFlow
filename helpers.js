@@ -47,43 +47,28 @@ const exportedMethods = {
         return number;
     },
     checkEmail(email) {
-        // Check if input is null or undefined
         if (!email) throw 'Error: You must provide an email address';
-
-        // Check type
         if (typeof email !== 'string') throw 'Error: Email must be a string';
-
-        // Trim any whitespace
         email = email.trim();
-
-        // Check if empty after trimming
         if (email.length === 0) throw 'Error: Email cannot be an empty string or just spaces';
 
-        // Regular expression for validating email format
-        // This validates basic email structure (local@domain.tld)
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
         if (!emailRegex.test(email)) {
             throw 'Error: Invalid email format';
         }
 
-        // Return lowercase email for consistency
         return email.toLowerCase();
     },
     checkDate(date) {
-        // Check if input is null or undefined
-        if (date === null || date === undefined) {
+        if (date === null || date === undefined)
             throw new Error("Date cannot be null or undefined");
-        }
-
-        // Check type
-        if (typeof date !== 'string') {
+        if (typeof date !== 'string')
             throw new Error("Date must be a string");
-        }
+
         date = date.trim();
-        if (date === '') {
+        if (date === '')
             throw new Error("Date cannot be empty");
-        }
+
         const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
         const match = date.match(dateRegex);
 
@@ -105,6 +90,15 @@ const exportedMethods = {
         const daysInMonth = new Date(year, month, 0).getDate();
         if (day < 1 || day > daysInMonth) {
             throw new Error(`Day must be between 01 and ${daysInMonth} for the given month`);
+        }
+
+        const dateValid = new Date(year, month - 1, day); // month is 0-indexed in Date
+        if (
+            dateValid.getFullYear() !== year ||
+            dateValid.getMonth() !== month - 1 ||
+            dateValid.getDate() !== day
+        ) {
+            throw new Error("Invalid date: The provided year, month, and day do not form a valid date.");
         }
         const formattedMonth = month.toString().padStart(2, '0');
         const formattedDay = day.toString().padStart(2, '0');
@@ -145,6 +139,7 @@ const exportedMethods = {
             if (!entry || typeof entry !== 'object' || Object.keys(entry).length === 0) {
                 return false;
             }
+            // skip withou school Name object
             if (!entry.schoolName || entry.schoolName.trim().length === 0) {
                 return false;
             }
@@ -156,14 +151,11 @@ const exportedMethods = {
 
             validatedEntry.schoolName = this.checkString(entry.schoolName, 'School Name');
 
-            // Validate education level if provided
             if (entry.educationLevel && entry.educationLevel.trim().length > 0) {
                 validatedEntry.educationLevel = this.checkString(entry.educationLevel, 'Education Level');
             } else {
                 validatedEntry.educationLevel = '';
             }
-
-            // Validate major if provided
             if (entry.major && entry.major.trim().length > 0) {
                 validatedEntry.major = this.checkString(entry.major, 'Major');
             } else {
@@ -176,8 +168,6 @@ const exportedMethods = {
             } else {
                 validatedEntry.startDate = '';
             }
-
-            // Validate end date if provided
             if (entry.endDate && entry.endDate.trim().length > 0) {
                 validatedEntry.endDate = this.checkDate(entry.endDate);
             } else {
@@ -188,12 +178,40 @@ const exportedMethods = {
 
         return validatedEducation;
     },
-    checkPassword(password, varName) {
-        if (!password) throw `Error: You must supply a ${varName}!`;
-        if (typeof password !== 'string') throw `Error: ${varName} must be a string!`;
+    checkUserName(userName) {
+        if (!userName) throw `Error: You must supply a userName!`;
+        if (typeof userName !== 'string') throw `Error: userName must be a string!`;
+        userName = userName.trim();
+        if (userName.length === 0)
+            throw `Error: userName cannot be an empty string or string with just spaces`;
+        if (!isNaN(userName))
+            throw `Error: userName is not a valid value for userName as it only contains digits`;
+        if (userName.length >= 20 || userName.length < 5)
+            throw `Error: userName must be at least 5 character and at most 20 character`;
+        return userName;
+    },
+
+    checkPassword(password) {
+        const uppercaseChar = /[A-Z]/;
+        const lowercaseChar = /[a-z]/;
+        const digitChar = /[0-9]/;
+        const specialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+        if (!password) throw `Error: You must supply a password!`;
+        if (typeof password !== 'string') throw `Error: password must be a string!`;
         password = password.trim();
         if (password.length === 0)
-            throw `Error: ${varName} cannot be an empty string or string with just spaces`;
+            throw `Error: password cannot be an empty string or string with just spaces`;
+        if (password.length < 8)
+            throw `Error: password must be at least 8 characters`;
+        if (!digitChar.test(password))
+            throw `Error: password must have at lease one number`;
+        if (!uppercaseChar.test(password))
+            throw `Error: password must have at lease one UpperCase Character`;
+        if (!lowercaseChar.test(password))
+            throw `Error: password must have at lease one LowerCase Character`;
+        if (!specialChar.test(password))
+            throw `Error: password must have at lease one Special Character`;
+
         return password;
     },
     getAge(dob) {

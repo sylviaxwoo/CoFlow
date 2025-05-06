@@ -13,12 +13,11 @@
     {{/if}}
     {{#if (eq title 'Profile')}}
         <link rel="stylesheet" href="/public/css/profile.css">
-        <script src="/public/js/profile.js"></script>
     {{/if}}
 </head>
 <body>
     <header>
-        <h1>CoFlow</h1>
+        <a href="/" style="text-decoration: none;color: inherit;"><h1>CoFlow</h1></a>
         <nav>
             <ul>
                 <li><a href="/">Home</a></li>
@@ -49,6 +48,14 @@
     </div>
     </footer>
     <script src="/public/js/main.js"></script>
-    <script src="/public/js/signup.js"></script>
+     {{#if (eq title 'Sign Up')}}
+       <script src="/public/js/signup.js"></script>
+    {{/if}}
+    {{#if (eq title 'Login')}}
+        <script src="/public/js/login.js"></script>
+    {{/if}}
+    {{#if (eq title 'Profile')}}
+        <script src="/public/js/profile.js"></script>
+    {{/if}}
 </body>
 </html>

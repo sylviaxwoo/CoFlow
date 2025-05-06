@@ -1,4 +1,55 @@
 document.addEventListener('DOMContentLoaded', () => {
+    function checkUserName(userName) {
+        if (!userName) throw `Error: You must supply a userName!`;
+        if (typeof userName !== 'string') throw `Error: userName must be a string!`;
+        userName = userName.trim();
+        if (userName.length === 0)
+            throw `Error: userName cannot be an empty string or string with just spaces`;
+        if (!isNaN(userName))
+            throw `Error: ${strVal} is not a valid value for userNameas it only contains digits`;
+        if (userName.length >= 20 && userName.length >= 5)
+            throw `Error: userName cannot be at least 5 character and at most 20 character`;
+        return userName;
+    };
+
+    function checkPassword(password) {
+        const uppercaseChar = /[A-Z]/;
+        const lowercaseChar = /[a-z]/;
+        const digitChar = /[0-9]/;
+        const specialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+        if (!password) throw `Error: You must supply a password!`;
+        if (typeof password !== 'string') throw `Error: password must be a string!`;
+        password = password.trim();
+        if (password.length === 0)
+            throw `Error: password cannot be an empty string or string with just spaces`;
+        if (password.length < 8)
+            throw `Error: password cannot be at least 8 characters`;
+        if (digitChar.test(password))
+            throw `Error: password must have at lease one number`;
+        if (uppercaseChar.test(password))
+            throw `Error: password must have at lease one UpperCase Character`;
+        if (lowercaseChar.test(password))
+            throw `Error: password must have at lease one LowerCase Character`;
+        if (specialChar.test(password))
+            throw `Error: password must have at lease one Special Character`;
+
+        return password;
+    };
+
+    function checkEmail(email) {
+        if (!email) throw 'Error: You must provide an email address';
+        if (typeof email !== 'string') throw 'Error: Email must be a string';
+        email = email.trim();
+        if (email.length === 0) throw 'Error: Email cannot be an empty string or just spaces';
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+        if (!emailRegex.test(email)) {
+            throw 'Error: Invalid email format';
+        }
+
+        return email.toLowerCase();
+    }
+
     const signupForm = document.getElementById('signup-form');
     const addEducationBtn = document.getElementById('add-education-btn');
     const educationContainer = document.getElementById('education-container');
@@ -12,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3>Education ${index + 1}</h3>
                 <div class="nested-form-group">
                     <label for="school-${index}">School Name:</label>
-                    <input type="text" id="school-${index}" name="education[${index}][schoolName]">
+                    <input type="text" id="school-${index}" name="education[${index}][schoolName] required">
                 </div>
                 <div class="nested-form-group">
                     <label for="educationLevel-${index}">Education Level:</label>
@@ -94,44 +145,9 @@ document.addEventListener('DOMContentLoaded', () => {
         stateDropdown.appendChild(option);
     });
 
-    // Basic form validation (you should add more robust validation)
-    signupForm.addEventListener('submit', (event) => {
-        let isValid = true;
-        const errors = {};
+    if (signupForm) {
 
-        // Check required fields
-        signupForm.querySelectorAll('.required input[type="text"], .required input[type="email"], .required input[type="password"], .required input[type="checkbox"]').forEach(input => {
-            if (!input.value.trim() && input.type !== 'checkbox') {
-                isValid = false;
-                errors[input.name] = `${input.previousElementSibling.textContent.slice(0, -1)} is required.`;
-                document.getElementById(`${input.id}-error`).textContent = errors[input.name];
-            } else if (input.type === 'email' && input.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim())) {
-                isValid = false;
-                errors[input.name] = 'Invalid email format.';
-                document.getElementById(`${input.id}-error`).textContent = errors[input.name];
-            } else if (input.type === 'checkbox' && !input.checked) {
-                isValid = false;
-                errors[input.name] = `You must agree to the ${input.nextElementSibling.textContent}.`;
-                document.getElementById(`${input.id}-error`).textContent = errors[input.name];
-            } else {
-                document.getElementById(`${input.id}-error`).textContent = '';
-            }
-        });
-
-        // Password confirmation (add if you include it)
-        // const password = document.getElementById('password').value;
-        // const confirmPassword = document.getElementById('confirmPassword').value;
-        // if (confirmPassword && password !== confirmPassword) {
-        //     isValid = false;
-        //     errors['confirmPassword'] = 'Passwords do not match.';
-        //     document.getElementById('confirmPassword-error').textContent = errors['confirmPassword'];
-        // }
-
-        if (!isValid) {
-            event.preventDefault();
-            console.log('Validation errors:', errors);
-        }
-    });
+    }
 
     // Initial attachment of remove education listeners
     attachRemoveEducationListeners();

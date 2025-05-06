@@ -127,10 +127,9 @@ async function removeUser(userId) {
 
 async function checkLogin(userName, password) {
     if (!userName || !password) throw "All fields are required"
-    userName = Validation.checkString(userName);
-    password = Validation.checkPassword(password, "password");
+    userName = Validation.checkUserName(userName);
+    password = Validation.checkString(password, "password");
     let findUser = await findUserByUsername(userName);
-    console.log(findUser)
     if (!findUser) throw "Either userName or password is wrong";
 
     const match = await bcrypt.compare(password, findUser.hashedPassword);
