@@ -125,7 +125,7 @@ const exportedMethods = {
         }
         return resgender;
     },
-    checkCity(city) {
+    checkCity(state, city) {
 
     },
     checkState(state) {
