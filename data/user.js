@@ -103,10 +103,70 @@ async function getAllUsers() {
     return userList;
 };
 
-async function updateUser(userName, firstName, lastName, email,
-    hashedPassword, bio, gender, city, state, dob, courses, education,
-    badgeIds, profilePicture, rating, notificationSettings, createdGroups, schedule, joinedGroups) {
+async function updateUserProfile(lastuserName, userName, firstName, lastName, email, bio, gender, state, city, dob, courses, education, profilePicture) {
 
+    if (!userName ||
+        !firstName ||
+        !lastName ||
+        !email ||
+        !lastuserName
+    ) throw 'basic info fields need to have valid values';
+
+    var originUserData = await this.findUserByUsername(lastuserName);
+    if (!originUserData) {
+        return res.render('profile', { title: 'Profile', error: 'originalUsername not exists.' });
+    }
+    var { _id, ...originUser } = originUserData;
+
+    const existingUsername = await this.findUserByUsername(userName);
+    if (existingUsername && (userName != lastuserName)) {
+        return res.render('profile', { title: 'Profile', error: 'Username already exists.' });
+    }
+    const existingemail = await this.findUserByEmail(email);
+    if (existingemail && (email != originUser.email)) {
+        return res.render('profile', { title: 'Profile', error: 'Email already registered.' });
+    }
+
+    userName = Validation.checkString(userName, "Validate username").toLowerCase();
+    firstName = Validation.checkString(firstName, "Validate firstName").toLowerCase();
+    lastName = Validation.checkString(lastName, "Validate lastName").toLowerCase();
+    email = Validation.checkEmail(email).toLowerCase();
+    bio = bio ? Validation.checkString(bio, "bio") : '';
+    gender = gender ? Validation.checkGender(gender, "gender") : '';
+    city = city ? Validation.checkString(city, "city") : '';
+    state = state ? Validation.checkString(state, "state") : '';
+    dob = dob ? Validation.checkDate(dob) : '';
+    courses = courses ? Validation.checkStringArray(courses) : [];
+    education = education ? Validation.checkEducation(education) : [];
+    profilePicture = profilePicture ? Validation.checkString(profilePicture) : '';
+
+    if (userName) originUser.userName = userName;
+    if (firstName) originUser.firstName = firstName;
+    if (lastName) originUser.lastName = lastName;
+    if (email) originUser.email = email;
+
+    if (courses) originUser.courses = courses;
+    if (bio) originUser.bio = bio;
+    if (gender) originUser.gender = gender;
+    if (city) originUser.city = city;
+    if (state) originUser.state = state;
+    if (dob) {
+        originUser.dob = dob
+        originUser.age = dob != '' ? Validation.getAge(dob) : ''
+    };
+    if (courses) originUser.courses = courses;
+    if (education) originUser.education = education;
+    if (profilePicture) originUser.profilePicture = profilePicture;
+
+    const userCollection = await users();
+    let userId = originUserData._id.toString();
+
+    const updatedUser = await userCollection.updateOne({ _id: new ObjectId(userId) }, { $set: originUser });
+    if (!updatedUser.matchedCount && !updatedUser.modifiedCount) {
+        throw 'could not update user successfully';
+    }
+    const user = await this.findUserById(userId);
+    return user;
 };
 
 async function removeUser(userId) {
@@ -141,4 +201,4 @@ async function checkLogin(userName, password) {
 
 };
 
-export { createUser, findUserByEmail, findUserByUsername, findUserById, getAllUsers, updateUser, removeUser, checkLogin };
+export { createUser, findUserByEmail, findUserByUsername, findUserById, getAllUsers, updateUserProfile, removeUser, checkLogin };

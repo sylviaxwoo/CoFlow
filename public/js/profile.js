@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Get elements
+
     const profileForm = document.getElementById('profile-form');
     const editProfileBtn = document.getElementById('edit-profile-btn');
     const saveProfileBtn = document.getElementById('save-profile-btn');
@@ -159,127 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Form validation functions
-    function checkUserName(userName) {
-        if (!userName) throw `Error: You must supply a userName!`;
-        if (typeof userName !== 'string') throw `Error: userName must be a string!`;
-        userName = userName.trim();
-        if (userName.length === 0)
-            throw `Error: userName cannot be an empty string or string with just spaces`;
-        if (!isNaN(userName))
-            throw `Error: ${userName} is not a valid value for userName as it only contains digits`;
-        if (userName.length < 5 || userName.length > 20)
-            throw `Error: userName must be at least 5 characters and at most 20 characters`;
-        return userName;
-    }
 
-    function checkEmail(email) {
-        if (!email) throw 'Error: You must provide an email address';
-        if (typeof email !== 'string') throw 'Error: Email must be a string';
-        email = email.trim();
-        if (email.length === 0) throw 'Error: Email cannot be an empty string or just spaces';
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-        if (!emailRegex.test(email)) {
-            throw 'Error: Invalid email format';
-        }
-
-        return email.toLowerCase();
-    }
-
-    function validateDate(dateString) {
-        if (!dateString) return true; // Date is optional
-
-        // Check if the string matches the YYYY-MM-DD format
-        const regex = /^\d{4}-\d{2}-\d{2}$/;
-        if (!regex.test(dateString)) {
-            throw 'Error: Date must be in YYYY-MM-DD format';
-        }
-
-        // Parse the date parts
-        const parts = dateString.split('-');
-        const year = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10);
-        const day = parseInt(parts[2], 10);
-
-        // Check year range
-        if (year < 1900 || year > new Date().getFullYear()) {
-            throw 'Error: Year must be between 1900 and current year';
-        }
-
-        // Check month range
-        if (month < 1 || month > 12) {
-            throw 'Error: Month must be between 1 and 12';
-        }
-
-        // Check day range based on month
-        const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-        // Adjust February for leap years
-        if ((year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0)) {
-            daysInMonth[1] = 29;
-        }
-
-        if (day < 1 || day > daysInMonth[month - 1]) {
-            throw `Error: Invalid day for the selected month`;
-        }
-
-        return true;
-    }
-
-    // Function to validate the form before submission
-    function validateForm() {
-        let isValid = true;
-        const errorMessages = {};
-
-        // Clear previous error messages
-        document.querySelectorAll('.error-message').forEach(el => {
-            el.textContent = '';
-        });
-
-        try {
-            checkUserName(document.getElementById('userName').value);
-        } catch (e) {
-            errorMessages['userName'] = e;
-            isValid = false;
-        }
-
-        try {
-            checkEmail(document.getElementById('email').value);
-        } catch (e) {
-            errorMessages['email'] = e;
-            isValid = false;
-        }
-
-        // Validate dates
-        try {
-            validateDate(document.getElementById('dob').value);
-        } catch (e) {
-            errorMessages['dob'] = e;
-            isValid = false;
-        }
-
-        // Validate education dates
-        document.querySelectorAll('[id^="startDate-"], [id^="endDate-"]').forEach(dateField => {
-            try {
-                validateDate(dateField.value);
-            } catch (e) {
-                const fieldId = dateField.id;
-                errorMessages[fieldId] = e;
-                isValid = false;
-            }
-        });
-
-        // Display error messages
-        for (const [field, message] of Object.entries(errorMessages)) {
-            const errorElement = document.getElementById(`${field}-error`);
-            if (errorElement) {
-                errorElement.textContent = message;
-            }
-        }
-
-        return isValid;
-    }
 
     // Event Listeners
     if (editProfileBtn) {
@@ -309,12 +190,164 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
     if (profileForm) {
-        profileForm.addEventListener('submit', (event) => {
-            if (!validateForm()) {
-                event.preventDefault();
+        saveProfileBtn.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const formData = new FormData(profileForm);
+            console.log(FormData);
+
+            const userName = formData.get('userName');
+            const firstName = formData.get('firstName');
+            const lastName = formData.get('lastName');
+            const email = formData.get('email');
+            const password = formData.get('password');
+            const bio = formData.get('bio');
+            const gender = formData.get('gender');
+            const state = formData.get('state');
+            const city = formData.get('city');
+            const dob = formData.get('dob');
+            const courses = formData.get('courses');
+            const terms = formData.get('terms');
+            const privacy = formData.get('privacy');
+
+            var userNameError = document.getElementById('userName-error');
+            var firstNameError = document.getElementById('firstName-error');
+            var lastNameError = document.getElementById('lastName-error');
+            var emailError = document.getElementById('email-error');
+            var passwordError = document.getElementById('password-error');
+            var bioError = document.getElementById('bio-error');
+            var genderError = document.getElementById('gender-error');
+            // var stateError = document.getElementById('state-error');
+            // var cityError = document.getElementById('city-error');
+            var dobError = document.getElementById('dob-error');
+            var coursesError = document.getElementById('courses-error');
+            var educationError = document.getElementById('education-error');
+
+            userNameError.textContent = '';
+            firstNameError.textContent = '';
+            lastNameError.textContent = '';
+            emailError.textContent = '';
+            passwordError.textContent = '';
+            bioError.textContent = '';
+            genderError.textContent = '';
+            // stateError
+            // cityError
+            dobError.textContent = '';
+            coursesError.textContent = '';
+            educationError.textContent = '';
+
+            var isFormValid = true;
+            try {
+                userNameError.textContent = '';
+                checkUserName(userName);
+            } catch (e) {
+                userNameError.textContent = e;
+                isFormValid = false;
             }
+            try {
+                checkPassword(password, "password");
+            } catch (e) {
+                passwordError.textContent = e;
+                isFormValid = false;
+            }
+            try {
+                checkString(firstName, "First Name");
+            } catch (e) {
+                firstNameError.textContent = e;
+                isFormValid = false;
+            }
+
+            try {
+                checkString(lastName, "Last Name");
+            } catch (e) {
+                lastNameError.textContent = e;
+                isFormValid = false;
+            }
+            try {
+                checkEmail(email);
+            } catch (e) {
+                emailError.textContent = e;
+                isFormValid = false;
+            }
+            try {
+                bio ? checkString(bio) : "";
+            } catch (e) {
+                bioError.textContent = e;
+                isFormValid = false;
+            }
+
+            //Gender
+            try {
+                gender ? checkGender(gender) : "";
+            } catch (e) {
+                genderError.textContent = e;
+                isFormValid = false;
+            }
+
+            //State
+            // try {
+            //     checkState(state);
+            // } catch (e) {
+            //     stateError.textContent = e;
+            //     isFormValid = false;
+            // }
+
+            //City
+            // try {
+            //     checkCity(city);
+            // } catch (e) {
+            //     cityError.textContent = e;
+            //     isFormValid = false;
+            // }
+
+            //dob
+            try {
+                dob ? checkDate(dob) : '';
+            } catch (e) {
+                dobError.textContent = e;
+                isFormValid = false;
+            }
+
+            //courses
+            try {
+                courses ? checkStringArray(courses.trim().split(','), "Courses") : '';
+            } catch (e) {
+                coursesError.textContent = e;
+                isFormValid = false;
+            }
+
+            const educations = document.querySelectorAll('.education-item');
+            if (educations) {
+                educations.forEach((edu, index) => {
+                    var schoolName = edu.querySelector(`[name="education[${index}][schoolName]"]`);
+                    schoolName = schoolName ? schoolName.value : ""
+                    var educationLevel = edu.querySelector(`[name="education[${index}][educationLevel]"]`);
+                    var educationLevel = educationLevel ? educationLevel.value : "";
+                    var major = edu.querySelector(`[name="education[${index}][major]"]`);
+                    var major = major ? major.value : "";
+                    var startDate = edu.querySelector(`[name="education[${index}][startDate]"]`);
+                    var startDate = startDate ? startDate.value : "";
+                    var endDate = edu.querySelector(`[name="education[${index}][endDate]"]`);
+                    var endDate = endDate ? endDate.value : "";
+                    try {
+                        checkString(schoolName, `Education-${index + 1} School Name`);
+                        educationLevel ? checkString(educationLevel, `Education-${index + 1} Education Level`) : "";
+                        major ? checkString(major, `Education-${index + 1} Major`) : "";
+                        startDate ? checkDate(startDate, `Education-${index + 1} Start Date`) : "";
+                        endDate ? checkDate(endDate, `Education-${index + 1} End Date`) : "";
+                    } catch (error) {
+                        educationError.textContent += error + '; ';
+                        isFormValid = false;
+                    }
+                })
+            };
+
+            if (isFormValid) {
+                profileForm.submit();
+            } else {
+                console.log('Form has errors.');
+            }
+
         });
     }
 

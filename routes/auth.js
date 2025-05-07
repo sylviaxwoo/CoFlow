@@ -55,14 +55,18 @@ router.route('/signup')
 
             const hashedPassword = await bcrypt.hash(password, 10);
             let newUser = await userdata.createUser(userName, firstName, lastName, email, hashedPassword, bio, gender, city, state, dob, courses, education, terms, privacy);
-            req.session.user = {
-                id: newUser._id,
-                userName: newUser.userName,
-                firstName: newUser.firstName,
-                lastName: newUser.lastName,
-                role: "user"
-            };
-            res.redirect('/auth/login');
+            if (newUser) {
+                req.session.user = {
+                    id: newUser._id,
+                    userName: newUser.userName,
+                    firstName: newUser.firstName,
+                    lastName: newUser.lastName,
+                    role: "user"
+                };
+                res.redirect('/profile');
+            } else {
+                throw "Error: Failt to signup using createUser"
+            }
 
         } catch (error) {
             console.error('Error during signup:', error);
