@@ -14,5 +14,13 @@ router.route('/auth/superuser-login')
             res.redirect('/login');
         }
     });
-
+router.route('/admin').get(middleware.superuserRouteMiddleware, async(req, res) => {
+    try {
+        const user = await admin.findUserById(req.session.user.id);
+        res.render('profile', { title: 'Profile', user: user });
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+        res.redirect('/auth/login');
+    }
+});
 export default router;

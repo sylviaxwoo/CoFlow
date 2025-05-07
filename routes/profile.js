@@ -21,11 +21,11 @@ router.route('/')
     })
     .post(async(req, res) => {
         const formData = req.body;
-
-        console.log('Profile Form Data:', formData);
-
+        console.log("profile form Data", formData);
         let { userName, firstName, lastName, email, bio, gender, state, city, dob, courses, education } = req.body;
         const lastuserName = req.session.user.userName;
+
+
         try {
             const originUsername = await profiledata.findUserByUsername(lastuserName);
             if (!originUsername) {
@@ -82,15 +82,7 @@ router.route('/')
             res.render('profile', { title: 'Profile', error: error });
         }
     });
-router.route('/admin').get(middleware.superuserRouteMiddleware, async(req, res) => {
-    try {
-        const user = await profiledata.findUserById(req.session.user.id);
-        res.render('profile', { title: 'Profile', user: user });
-    } catch (error) {
-        console.error('Error fetching profile:', error);
-        res.redirect('/auth/login');
-    }
-});
+
 router.route('/business').get(async(req, res) => {
     try {
         const user = await profiledata.findUserById(req.session.user.id);
