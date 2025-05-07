@@ -3,6 +3,20 @@
     <p id="error" class="error">{{error}}</p>
 {{/if}}
 <form action="/auth/login" method="POST" id="login-form">
+     <div class="form-group">
+        <label>Login as:</label>
+        <div class="radio-group">
+            <label>
+                <input type="radio" name="userRole" value="user" checked> Regular User
+            </label>
+            <label>
+                <input type="radio" name="userRole" value="business"> Business User
+            </label>
+            <label>
+                <input type="radio" name="userRole" value="admin"> Admin
+            </label>
+        </div>
+    </div>
     <div class="form-group">
         <label for="userName">Username or Email:</label>
         <input type="text" id="userName" name="userName" required>

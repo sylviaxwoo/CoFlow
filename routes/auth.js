@@ -4,6 +4,8 @@ import bcrypt from 'bcrypt';
 import * as userdata from '../data/user.js';
 import middleware from '../middleware.js';
 import Validation from '../helpers.js'
+import * as admindata from '../data/admin.js';
+import * as businessdata from '../data/business.js';
 
 
 router.route('/signup')
