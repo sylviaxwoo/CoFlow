@@ -1,4 +1,4 @@
-import { admin } from '../config/mongoCollections.js'
+import { admin, api } from '../config/mongoCollections.js'
 import Validation from '../helpers.js'
 import { ObjectId } from 'mongodb';
 import { findUserByUsername } from './user.js';
@@ -43,7 +43,12 @@ async function findAdminByadminName(adminUserName) {
 };
 
 async function getAllAdmin() {
-
+    const adminCollection = await admin();
+    const adminList = await adminCollection.find({}).toArray();
+    adminList.forEach((element) => {
+        element._id = element._id.toString();
+    });
+    return adminList;
 };
 
 async function removeAdmin(adminId) {
@@ -53,4 +58,37 @@ async function updateAdmin(adminId) {
 
 };
 
-export { createAdmin, findAdminById, findAdminByadminName, getAllAdmin, removeAdmin, updateAdmin }
+async function addApiTestCase(caseId, url, method, body) {
+    if (!caseId || !url || !method || !body) throw 'All fields of url, method, body must input';
+    userName = Validation.checkId(caseId, "caseId");
+    const apiCollection = await api();
+    var newApiCase = {
+        url: url,
+        method: method,
+        body: body
+    }
+    const newInsertInformation = await apiCollection.insertOne(newApiCase);
+    if (!newInsertInformation.insertedId) throw 'Insert failed!';
+    return await this.findApiCaseById(newInsertInformation.insertedId.toString());
+};
+
+async function findApiCaseById(caseId) {
+    if (!caseId) throw 'must input caseId';
+    caseId = Validation.checkId(caseId);
+    const apiCollection = await api();
+    const findApi = await apiCollection.findOne({ _id: new ObjectId(caseId) });
+    if (findApi === null) return null;
+    findApi._id = findApi._id.toString();
+    return findApi;
+}
+async function updateApiTestCase(caseId) {
+    if (!caseId) throw 'must input caseId';
+};
+async function DeleteApiTestCase(caseId) {
+    if (!caseId) throw 'must input caseId';
+
+};
+
+
+
+export { createAdmin, findAdminById, findAdminByadminName, getAllAdmin, removeAdmin, updateAdmin, addApiTestCase, updateApiTestCase, DeleteApiTestCase, findApiCaseById }

@@ -83,7 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const inputs = profileForm.querySelectorAll('input, textarea, select');
         inputs.forEach(input => {
             input.setAttribute('readonly', true);
-            if (input.type === 'radio' || input.type === 'select-one') {
+            console.log(input.type);
+            if (input.type === 'radio' || input.type === 'select-one' || input.type === 'file') {
                 input.setAttribute('disabled', true);
             }
         });
@@ -193,14 +194,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     var uploadPic = document.getElementById('uploadPic') //input
-    var profilePicture = document.getElementById("profilePicture") // img
-
+    var shownPic = document.getElementById("shownPic") // img
+    var profilePicture = document.getElementById("profilePicture") // text img
     uploadPic.addEventListener('change', function() {
         if (uploadPic.files[0]) {
-            if (!uploadPic || !profilePicture) {
+            if (!uploadPic || !shownPic) {
                 console.error('Element not found:', {
                     uploadPic: uploadPic,
-                    profilePicture: profilePicture
+                    shownPic: shownPic
                 });
                 return;
             }
@@ -223,8 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .then(data => {
                     // Upload successful
-                    profilePicture.src = data.secure_url;
-                    uploadPic.value = data.secure_url;
+                    shownPic.src = data.secure_url;
+                    profilePicture.value = data.secure_url;
                     console.log("picture upload successfully")
                 })
                 .catch(error => {
@@ -236,20 +237,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    function logFormData(formData) {
+        console.log('FormData Contents:');
+        for (const [key, value] of formData.entries()) {
+            if (value instanceof File) {
+                console.log(`${key}: [File] ${value.name}, size: ${value.size} bytes, type: ${value.type}`);
+            } else {
+                console.log(`${key}: ${value}`);
+            }
+        }
+    }
+
     if (profileForm) {
-        saveProfileBtn.addEventListener('submit', (event) => {
+        saveProfileBtn.addEventListener('click', (event) => {
             event.preventDefault();
 
 
-            const formData = new FormData(profileForm);
-            console.log(FormData);
-
-
+            var formData = new FormData(profileForm);
             const userName = formData.get('userName');
             const firstName = formData.get('firstName');
             const lastName = formData.get('lastName');
             const email = formData.get('email');
-            const password = formData.get('password');
             const bio = formData.get('bio');
             const gender = formData.get('gender');
             const state = formData.get('state');
@@ -263,7 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
             var firstNameError = document.getElementById('firstName-error');
             var lastNameError = document.getElementById('lastName-error');
             var emailError = document.getElementById('email-error');
-            var passwordError = document.getElementById('password-error');
             var bioError = document.getElementById('bio-error');
             var genderError = document.getElementById('gender-error');
             // var stateError = document.getElementById('state-error');
@@ -276,7 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
             firstNameError.textContent = '';
             lastNameError.textContent = '';
             emailError.textContent = '';
-            passwordError.textContent = '';
             bioError.textContent = '';
             genderError.textContent = '';
             // stateError
@@ -291,12 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 checkUserName(userName);
             } catch (e) {
                 userNameError.textContent = e;
-                isFormValid = false;
-            }
-            try {
-                checkPassword(password, "password");
-            } catch (e) {
-                passwordError.textContent = e;
                 isFormValid = false;
             }
             try {

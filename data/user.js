@@ -109,7 +109,7 @@ async function getAllUsers() {
 };
 
 async function updateUserProfile(lastuserName, userName, firstName, lastName, email, bio, gender, state, city, dob, courses, education, profilePicture) {
-
+    console.log(profilePicture);
     if (!userName ||
         !firstName ||
         !lastName ||
@@ -143,7 +143,7 @@ async function updateUserProfile(lastuserName, userName, firstName, lastName, em
     dob = dob ? Validation.checkDate(dob) : '';
     courses = courses ? Validation.checkStringArray(courses) : [];
     education = education ? Validation.checkEducation(education) : [];
-    profilePicture = profilePicture ? Validation.checkString(profilePicture) : '';
+    profilePicture = profilePicture ? Validation.checkImageUrl(profilePicture) : '';
 
     if (userName) originUser.userName = userName;
     if (firstName) originUser.firstName = firstName;
@@ -162,6 +162,8 @@ async function updateUserProfile(lastuserName, userName, firstName, lastName, em
     if (courses) originUser.courses = courses;
     if (education) originUser.education = education;
     if (profilePicture) originUser.profilePicture = profilePicture;
+
+    console.log(originUser);
 
     const userCollection = await users();
     let userId = originUserData._id.toString();

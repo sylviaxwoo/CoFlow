@@ -6,13 +6,16 @@ import middleware from '../middleware.js';
 import bcrypt from 'bcrypt';
 
 
-router.route('/').get(middleware.superuserRouteMiddleware, async(req, res) => {
+router.route('/admin-table').get(middleware.superuserRouteMiddleware, async(req, res) => {
     try {
-        const user_table = await userdata.getAllUsers(req.session.user.id);
-        res.render('admin-table', { title: 'Admin', user_table: user_table });
+
+        const user = await admindata.findAdminById(req.session.user.id);
+        const user_table = await userdata.getAllUsers();
+        const admin_table = await admindata.getAllAdmin();
+        res.render('admin-table', { title: 'Admin', user: user, user_table: user_table, admin_table: admin_table });
     } catch (error) {
         console.error('Error fetching profile:', error);
-        res.redirect('/auth/login');
+        res.status(500).render('error', { title: "error", message: error });
     }
 });
 router.route('/admin-register').post(async(req, res) => {
@@ -40,13 +43,14 @@ router.route('/admin-register').post(async(req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
-router.route('/api-test').get(middleware.superuserRouteMiddleware, async(req, res) => {
+router.route('/admin-api').get(middleware.superuserRouteMiddleware, async(req, res) => {
     try {
-        const user = await admindata.findUserById(req.session.user.id);
-        res.render('admin-api', { title: 'Profile', user: user });
+        const user = await admindata.findAdminById(req.session.user.id);
+        const api = null;
+        res.render('admin-api', { title: 'Admin API Test', user: user, api: api });
     } catch (error) {
-        console.error('Error in api test page:', error);
-        res.redirect('/auth/login');
+        console.error('Error fetching profile:', error);
+        res.status(500).render('error', { title: "error", message: error });
     }
 });
 export default router;

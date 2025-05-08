@@ -1,0 +1,75 @@
+<h1>{{title}}</h1>
+
+<div class="container mt-5">
+  <h1>User Data</h1>
+  <table class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        <th>_id</th>
+        <th>userName</th>
+        <th>firstName</th>
+        <th>lastName</th>
+        <th>email</th>
+        <th>bio</th>
+        <th>gender</th>
+        <th>state</th>
+        <th>city</th>
+        <th>age</th>
+        <th>dob</th>
+        <th>courses</th>
+        <th>education</th>
+        <th>role</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each user_table}}
+        <tr>
+          <td>{{_id}}</td>
+          <td>{{userName}}</td>
+          <td>{{firstName}}</td>
+          <td>{{lastName}}</td>
+          <td>{{email}}</td>
+          <td>{{bio}}</td>
+          <td>{{gender}}</td>
+          <td>{{state}}</td>
+          <td>{{city}}</td>
+           <td>{{age}}</td>
+          <td>{{dob}}</td>
+          <td>
+            {{#each courses}}
+              <div>{{this}}</div>
+            {{/each}}
+          </td>
+          <td>
+            {{#each education}}
+              <div>{{this}}</div>
+            {{/each}}
+          </td>
+          <td>{{role}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+
+<div class="container mt-5">
+  <h1>Admin Data</h1>
+  <table class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        <th>_id</th>
+        <th>userName</th>
+        <th>role</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each admin_table}}
+        <tr>
+          <td>{{_id}}</td>
+          <td>{{userName}}</td>
+          <td>{{role}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>

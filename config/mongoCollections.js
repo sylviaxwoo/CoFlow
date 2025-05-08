@@ -20,3 +20,4 @@ NOTE: YOU WILL NEED TO CHANGE THE CODE BELOW TO HAVE THE COLLECTION(S) REQUIRED 
 export const users = getCollectionFn('users');
 export const admin = getCollectionFn('admin');
 export const business = getCollectionFn('business');
+export const api = getCollectionFn('api');
