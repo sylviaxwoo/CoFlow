@@ -104,6 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (field.type === 'radio') {
                         const radio = profileForm.querySelector(`[name="${key}"][value="${value}"]`);
                         if (radio) radio.checked = true;
+                    } else if (field.type === 'file') {
+                        field.value = "";
                     } else {
                         field.value = value;
                     }
@@ -190,11 +192,58 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    var uploadPic = document.getElementById('uploadPic') //input
+    var profilePicture = document.getElementById("profilePicture") // img
+
+    uploadPic.addEventListener('change', function() {
+        if (uploadPic.files[0]) {
+            if (!uploadPic || !profilePicture) {
+                console.error('Element not found:', {
+                    uploadPic: uploadPic,
+                    profilePicture: profilePicture
+                });
+                return;
+            }
+
+            const cloudName = 'dknqbw5qg';
+            const uploadPreset = 'coflow'; // Your preset name
+            const fd = new FormData();
+
+            fd.append('file', uploadPic.files[0]);
+            fd.append('upload_preset', uploadPreset);
+            fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                    method: 'POST',
+                    body: fd
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Upload successful
+                    profilePicture.src = data.secure_url;
+                    uploadPic.value = data.secure_url;
+                    console.log("picture upload successfully")
+                })
+                .catch(error => {
+                    console.error('Error uploading to Cloudinary:', error);
+                    console.log('Error uploading image. Please try again.', 'error');
+                });
+
+
+        }
+    });
+
     if (profileForm) {
         saveProfileBtn.addEventListener('submit', (event) => {
             event.preventDefault();
+
+
             const formData = new FormData(profileForm);
             console.log(FormData);
+
 
             const userName = formData.get('userName');
             const firstName = formData.get('firstName');

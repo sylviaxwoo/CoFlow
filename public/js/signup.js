@@ -5,7 +5,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const educationContainer = document.getElementById('education-container');
     let educationCount = 1;
     const maxEducation = 5;
+    const tooltipIcon = document.querySelector('.tooltip-icon');
+    const passwordTooltip = document.getElementById('password-tooltip');
+    tooltipIcon.addEventListener('mouseenter', () => {
+        passwordTooltip.style.display = 'block';
+    });
 
+    tooltipIcon.addEventListener('mouseleave', () => {
+        passwordTooltip.style.display = 'none';
+    });
     // Function to generate a new education item HTML
     function createEducationItem(index) {
         return `

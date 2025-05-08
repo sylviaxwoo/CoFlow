@@ -10,7 +10,11 @@
             <button type="submit" id="save-profile-btn" style="display: none;">Save Changes</button>
             <button type="button" id="cancel-edit-btn" style="display: none;">Cancel</button>
         </div>
-
+        
+        <img name="profilePicture", id = "profilePicture" src="{{user.profilePicture}}" alt="user Profile Picture">
+        <label for="uploadPic">Choose an image:</label>
+        <input type="file" id="uploadPic" name="uploadPic" accept="image/*" readonly>
+        
         <h2>Basic Information</h2>
         <div class="form-group">
             <label for="userName">Username:</label>

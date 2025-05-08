@@ -5,7 +5,6 @@ import middleware from '../middleware.js';
 import Validation from '../helpers.js';
 
 
-
 router.route('/')
     .get(middleware.userRouteMiddleware, async(req, res) => {
         try {

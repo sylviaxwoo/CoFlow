@@ -1,13 +1,47 @@
-import { users } from '../config/mongoCollections.js'
+import { admin } from '../config/mongoCollections.js'
 import Validation from '../helpers.js'
 import { ObjectId } from 'mongodb';
+import { findUserByUsername } from './user.js';
 
-async function createAdmin(userName, role) {
+async function createAdmin(userName, hashedPassword) {
+    if (!userName ||
+        !hashedPassword
+    )
+        throw 'Admin username and password fields need to have valid values';
+    userName = Validation.checkString(userName, "Validate username");
+    hashedPassword = Validation.checkString(hashedPassword, "hashedPassword");
+    const adminCollection = await admin();
+
+    var newAdmin = {
+        userName: userName,
+        hashedPassword: hashedPassword,
+        role: "admin"
+    }
+    const newInsertInformation = await adminCollection.insertOne(newAdmin);
+    if (!newInsertInformation.insertedId) throw 'Insert failed!';
+    // return await this.findUserById(newInsertInformation.insertedId.toString());
+    return await this.findAdminByadminName(userName);
 
 };
 async function findAdminById(adminId) {
-
+    if (!adminId) throw 'You must provide an userId to search for';
+    adminId = Validation.checkId(adminId);
+    const adminCollection = await admin();
+    const findAdmin = await adminCollection.findOne({ _id: new ObjectId(adminId) });
+    if (findAdmin === null) return null;
+    findAdmin._id = findAdmin._id.toString();
+    return findAdmin;
 };
+async function findAdminByadminName(adminUserName) {
+    if (!adminUserName) throw 'You must provide an username to search for';
+    adminUserName = Validation.checkString(adminUserName, "check username");
+    const adminCollection = await admin();
+    const findAdmin = await adminCollection.findOne({ userName: adminUserName });
+    if (findAdmin === null) return null;
+    findAdmin._id = findAdmin._id.toString();
+    return findAdmin;
+};
+
 async function getAllAdmin() {
 
 };
@@ -18,3 +52,5 @@ async function removeAdmin(adminId) {
 async function updateAdmin(adminId) {
 
 };
+
+export { createAdmin, findAdminById, findAdminByadminName, getAllAdmin, removeAdmin, updateAdmin }

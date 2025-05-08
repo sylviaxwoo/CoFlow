@@ -4,8 +4,12 @@ import bcrypt from 'bcrypt';
 import * as userdata from '../data/user.js';
 import middleware from '../middleware.js';
 import Validation from '../helpers.js'
-
-
+import { v2 as cloudinary } from 'cloudinary';
+cloudinary.config({
+    cloud_name: 'dknqbw5qg',
+    api_key: '219826245671147',
+    api_secret: 'iIKJ7nzxtBzwhrYk74VvrPamYqY'
+});
 router.route('/signup')
     .get(middleware.signupRouteMiddleware, async(req, res) => {
         res.render('signup', { title: 'Sign Up' });
@@ -61,9 +65,10 @@ router.route('/signup')
                     userName: newUser.userName,
                     firstName: newUser.firstName,
                     lastName: newUser.lastName,
-                    role: "user"
+                    role: newUser.role
                 };
                 res.redirect('/profile');
+
             } else {
                 throw "Error: Failt to signup using createUser"
             }
@@ -91,9 +96,20 @@ router.route('/login')
                 userName: finduser.userName,
                 firstName: finduser.firstName,
                 lastName: finduser.lastName,
-                role: "user"
+                role: finduser.role
             };
-            res.redirect('/profile');
+            switch (finduser.role) {
+                case 'user':
+                    res.redirect('/profile');
+                    break;
+                case 'business':
+                    res.redirect('/business/profile');
+                    break;
+                case 'admin':
+                    res.redirect('/admin');
+                    break;
+            }
+
 
         } catch (error) {
             console.error('Error during login:', error);
