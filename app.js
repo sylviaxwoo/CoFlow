@@ -28,8 +28,14 @@ app.engine('handlebars', engine({
     helpers: {
         getCurrentYear: () => new Date().getFullYear(),
         eq: (v1, v2) => v1 === v2, // Register the 'eq' helper
-        add: (v1, v2) => v1 + v2
+        add: (v1, v2) => v1 + v2,
+        //更新了标准时间转换
+        formatTime: (date) => {
+            if (!date) return '';
+            const d = new Date(date);
+            return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
+}
 })); // Use the imported 'engine'
 app.set('view engine', 'handlebars');
 

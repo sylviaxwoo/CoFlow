@@ -19,4 +19,7 @@ const getCollectionFn = (collection) => {
 NOTE: YOU WILL NEED TO CHANGE THE CODE BELOW TO HAVE THE COLLECTION(S) REQUIRED BY THE ASSIGNMENT */
 export const users = getCollectionFn('users');
 export const admin = getCollectionFn('admin');
-export const business = getCollectionFn('business');
+export const busers= getCollectionFn('business');
+export const badges = getCollectionFn('badges');
+export const groups = getCollectionFn('groups');
+export const schedule = getCollectionFn('schedule');

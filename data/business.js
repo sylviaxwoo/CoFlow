@@ -1,7 +1,9 @@
 import { busers } from '../config/mongoCollections.js';
+import { groups } from '../config/mongoCollections.js';
 import Validation from '../helpers.js';
 import { ObjectId } from 'mongodb';
 import bcrypt from 'bcrypt';
+const { formatTime } = require('../helpers.js');//获取标准时间，helpers记得更新
 
 async function createBuser(userName, company, email, phone, description, hashedPassword, address, city, state, courses, terms, privacy) {
     if (!userName || !company || !email || !phone || !description || !hashedPassword || !address || !city || !state || !courses || terms !== 'on' || privacy !== 'on') {
@@ -42,8 +44,8 @@ async function createBuser(userName, company, email, phone, description, hashedP
         createdAt: new Date().toISOString(),
         schedule: [],
         notificationSettings: {},
-        createdGroups: [],
-        joinedGroups: []
+        createdgroups: [],
+        joinedgroups: []
     };
 
     const insertInfo = await buserCollection.insertOne(newBuser);
@@ -149,6 +151,142 @@ async function checkBuserLogin(userName, password) {
     return buser;
 }
 
+ /**
+ * 获取用户的完整日程（包含参与和主办的活动）
+ * @param {string} buserId - 商家用户ID
+ * @returns {Array} 合并后的日程列表
+ */
+async function getFullSchedule(buserId) {
+    // 数据验证
+    buserId = Validation.checkId(buserId);
+
+    // 并行查询
+    const [buser, hostedEvents] = await Promise.all([
+        // 查询用户参与的群组（从schedule字段）
+        busers().findOne(
+            { _id: new ObjectId(buserId) },
+            { projection: { schedule: 1 } }
+        ),
+        // 查询用户主办的群组
+        groups().find(
+            { host: new ObjectId(buserId) },
+            { projection: { name: 1, start_time: 1, end_time: 1, location: 1 } }
+        ).toArray()
+    ]);
+
+    // 数据合并与格式化
+    return [
+        // 参与的群组
+        ...(buser.schedule?.map(item => ({
+            type: 'participant',
+            group_id: item.group_id.toString(),
+            start_time: item.start_time,
+            end_time: item.end_time,
+            // 其他字段...
+        })) || []),
+        
+        // 主办的群组
+        ...hostedEvents.map(event => ({
+            type: 'host',
+            group_id: event._id.toString(),
+            start_time: event.start_time,
+            end_time: event.end_time,
+            location: event.location
+        }))
+    ].sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+}
+
+/**
+ * 添加日程项（含时间冲突检查）
+ * @param {string} buserId 
+ * @param {string} groupId 
+ * @param {string} startTime 
+ * @param {string} endTime 
+ */
+async function addScheduleItem(buserId, groupId, startTime, endTime) {
+    // 数据验证
+    buserId = Validation.checkId(buserId);
+    groupId = Validation.checkId(groupId);
+    startTime = new Date(startTime);
+    endTime = new Date(endTime);
+
+    if (startTime >= endTime) {
+        throw 'End time must be after start time';
+    }
+
+    // 检查时间冲突
+    const conflict = await busers().findOne({
+        _id: new ObjectId(buserId),
+        schedule: {
+            $elemMatch: {
+                $or: [
+                    { start_time: { $lt: endTime }, end_time: { $gt: startTime } }
+                ]
+            }
+        }
+    });
+    if (conflict) throw 'Time conflict with existing schedule';
+
+    // 添加日程项
+    const result = await busers().updateOne(
+        { _id: new ObjectId(buserId) },
+        { $push: { 
+            schedule: { 
+                group_id: new ObjectId(groupId),
+                start_time: startTime,
+                end_time: endTime
+            }
+        }}
+    );
+
+    if (result.modifiedCount === 0) throw 'Failed to add schedule item';
+}
+
+/**
+ * 从用户日程中移除指定群组
+ * @param {string} buserId 
+ * @param {string} groupId 
+ */
+async function removeScheduleItem(buserId, groupId) {
+    // 数据验证
+    buserId = Validation.checkId(buserId);
+    groupId = Validation.checkId(groupId);
+
+    // 移除操作
+    const result = await busers().updateOne(
+        { _id: new ObjectId(buserId) },
+        { $pull: { schedule: { group_id: new ObjectId(groupId) } } }
+    );
+
+    if (result.modifiedCount === 0) throw 'Schedule item not found';
+}
+
+/**
+ * 获取商家用户主办的所有活动
+ * @param {string} buserId 
+ * @returns {Array} 主办的活动列表
+ */
+async function getHostedEvents(buserId) {
+    // 数据验证
+    buserId = Validation.checkId(buserId);
+
+    // 查询主办的活动
+    const events = await groups()
+        .find({ host: new ObjectId(buserId) })
+        .sort({ start_time: 1 })
+        .toArray();
+
+    // 格式化输出
+    return events.map(event => ({
+        group_id: event._id.toString(),
+        name: event.name,
+        start_time: event.start_time,
+        end_time: event.end_time,
+        location: event.location,
+        // 其他业务字段...
+    }));
+}
+
 export {
     createBuser,
     findBuserById,
@@ -157,5 +295,9 @@ export {
     getAllBusers,
     updateBuser,
     removeBuser,
-    checkBuserLogin
+    checkBuserLogin,
+    getFullSchedule,
+    addScheduleItem,
+    removeScheduleItem,
+    getHostedEvents
 };

@@ -109,4 +109,10 @@ router.route('/logout')
             res.redirect('/auth/login');
         })
     });
+
+ // 获取用户徽章
+ router.get('/:username', async (req, res) => {
+    const user = await User.findOne({ username: req.params.username }).populate('badges.badgeId');
+    res.json(user);
+  });
 export default router;
