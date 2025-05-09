@@ -3,7 +3,15 @@
 
 {{#if user}}
     <p>You are logged in as {{user.userName}}.</p>
+    {{#if (eq user.role "user")}}
     <p><a href="/profile">View your profile</a>.</p>
+    {{/if}}
+    {{#if (eq user.role "admin")}}
+    <p><a href="/admin/admin-table">Go to Admin Table</a>.</p>
+    {{/if}}
+    {{#if (eq user.role "business")}}
+    <p><a href="/profile/business">Go to Business Profile</a>.</p>
+    {{/if}}
 {{else}}
     <p>Please <a href="/auth/signup">sign up</a> or <a href="/auth/login">log in</a> to access more features.</p>
 {{/if}}

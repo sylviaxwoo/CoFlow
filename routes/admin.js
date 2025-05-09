@@ -14,7 +14,7 @@ router.route('/admin-table').get(middleware.superuserRouteMiddleware, async(req,
         const admin_table = await admindata.getAllAdmin();
         res.render('admin-table', { title: 'Admin', user: user, user_table: user_table, admin_table: admin_table });
     } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error('Error fetching admin table:', error);
         res.status(500).render('error', { title: "error", message: error });
     }
 });
@@ -43,14 +43,5 @@ router.route('/admin-register').post(async(req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
-router.route('/admin-api').get(middleware.superuserRouteMiddleware, async(req, res) => {
-    try {
-        const user = await admindata.findAdminById(req.session.user.id);
-        const api = null;
-        res.render('admin-api', { title: 'Admin API Test', user: user, api: api });
-    } catch (error) {
-        console.error('Error fetching profile:', error);
-        res.status(500).render('error', { title: "error", message: error });
-    }
-});
+
 export default router;

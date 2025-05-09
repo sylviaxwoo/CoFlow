@@ -237,16 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function logFormData(formData) {
-        console.log('FormData Contents:');
-        for (const [key, value] of formData.entries()) {
-            if (value instanceof File) {
-                console.log(`${key}: [File] ${value.name}, size: ${value.size} bytes, type: ${value.type}`);
-            } else {
-                console.log(`${key}: ${value}`);
-            }
-        }
-    }
 
     if (profileForm) {
         saveProfileBtn.addEventListener('click', (event) => {

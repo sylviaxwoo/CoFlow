@@ -58,9 +58,9 @@ async function updateAdmin(adminId) {
 
 };
 
-async function addApiTestCase(caseId, url, method, body) {
-    if (!caseId || !url || !method || !body) throw 'All fields of url, method, body must input';
-    userName = Validation.checkId(caseId, "caseId");
+async function addApiTestCase(url, method, body) {
+    if (!url || !method || !body) throw 'All fields of url, method, body must input';
+    url = Validation.checkUrl(url);
     const apiCollection = await api();
     var newApiCase = {
         url: url,
@@ -81,6 +81,7 @@ async function findApiCaseById(caseId) {
     findApi._id = findApi._id.toString();
     return findApi;
 }
+
 async function updateApiTestCase(caseId) {
     if (!caseId) throw 'must input caseId';
 };
@@ -88,7 +89,23 @@ async function DeleteApiTestCase(caseId) {
     if (!caseId) throw 'must input caseId';
 
 };
+async function getAllApiTestCase() {
+    const apiCollection = await api();
+    const apitestList = await apiCollection.find({}).toArray();
+    apitestList.forEach((element) => {
+        element._id = element._id.toString();
+    });
+    return apitestList;
+};
+async function findApiTestCaseByUrl(url) {
+    if (!url) throw 'You must provide an url to search for';
+    url = Validation.checkUrl(url);
+    const apiCollection = await api();
+    const findApi = await apiCollection.findOne({ url: url });
+    if (findApi === null) return null;
+    findApi._id = findAdmin._id.toString();
+    return findApi;
+};
 
 
-
-export { createAdmin, findAdminById, findAdminByadminName, getAllAdmin, removeAdmin, updateAdmin, addApiTestCase, updateApiTestCase, DeleteApiTestCase, findApiCaseById }
+export { createAdmin, findAdminById, findAdminByadminName, getAllAdmin, removeAdmin, updateAdmin, addApiTestCase, updateApiTestCase, DeleteApiTestCase, findApiCaseById, getAllApiTestCase, findApiTestCaseByUrl }

@@ -233,6 +233,9 @@ const exportedMethods = {
     },
     checkImageUrl(imageurl) {
         return imageurl;
+    },
+    checkUrl(url) {
+        return url;
     }
 };
 

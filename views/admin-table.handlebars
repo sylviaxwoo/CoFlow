@@ -37,12 +37,19 @@
           <td>{{dob}}</td>
           <td>
             {{#each courses}}
-              <div>{{this}}</div>
+               <div>{{this}}</div>
             {{/each}}
           </td>
           <td>
             {{#each education}}
-              <div>{{this}}</div>
+            <div class="education-container">
+               <div>{{this.schoolName}}</div>
+              <div>{{this.educationLevel}}</div>
+              <div>{{this.major}}</div>
+              <div>{{this.startDate}}</div>
+               <div>{{this.endDate}}</div>
+            </div>
+            
             {{/each}}
           </td>
           <td>{{role}}</td>
