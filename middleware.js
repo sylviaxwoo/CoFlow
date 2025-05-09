@@ -55,7 +55,10 @@ const signupRouteMiddleware = (req, res, next) => {
 
 // eror page if not superuser
 const superuserRouteMiddleware = (req, res, next) => {
-    if (req.session.user.role !== 'superuser') {
+    if (!req.session || !req.session.user) {
+        return res.redirect('/auth/login');
+    }
+    if (req.session.user.role !== 'admin') {
         return res.status(403).render('error', {
             title: 'Access Denied',
             message: 'You do not have permission to view this page.',

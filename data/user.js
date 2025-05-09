@@ -1,7 +1,9 @@
 import { users } from '../config/mongoCollections.js'
+import * as admindata from './admin.js'
 import Validation from '../helpers.js'
 import { ObjectId } from 'mongodb';
 import bcrypt from 'bcrypt';
+
 async function createUser(userName, firstName, lastName, email, hashedPassword, bio, gender, city, state, dob, courses, education, terms, privacy) {
     if (!userName ||
         !firstName ||
@@ -51,7 +53,7 @@ async function createUser(userName, firstName, lastName, email, hashedPassword, 
         terms: terms,
         privacy: privacy,
         profilePicture: '',
-        rating: '',
+        rating: 0,
         badgeIds: [],
         schedule: [],
         notificationSettings: {},
@@ -100,11 +102,14 @@ async function findUserById(userId) {
 async function getAllUsers() {
     const userCollection = await users();
     const userList = await userCollection.find({}).toArray();
+    userList.forEach((element) => {
+        element._id = element._id.toString();
+    });
     return userList;
 };
 
 async function updateUserProfile(lastuserName, userName, firstName, lastName, email, bio, gender, state, city, dob, courses, education, profilePicture) {
-
+    console.log(profilePicture);
     if (!userName ||
         !firstName ||
         !lastName ||
@@ -138,7 +143,7 @@ async function updateUserProfile(lastuserName, userName, firstName, lastName, em
     dob = dob ? Validation.checkDate(dob) : '';
     courses = courses ? Validation.checkStringArray(courses) : [];
     education = education ? Validation.checkEducation(education) : [];
-    profilePicture = profilePicture ? Validation.checkString(profilePicture) : '';
+    profilePicture = profilePicture ? Validation.checkImageUrl(profilePicture) : '';
 
     if (userName) originUser.userName = userName;
     if (firstName) originUser.firstName = firstName;
@@ -158,6 +163,8 @@ async function updateUserProfile(lastuserName, userName, firstName, lastName, em
     if (education) originUser.education = education;
     if (profilePicture) originUser.profilePicture = profilePicture;
 
+    console.log(originUser);
+
     const userCollection = await users();
     let userId = originUserData._id.toString();
 
@@ -176,7 +183,7 @@ async function removeUser(userId) {
     const user = await findUserById(userId);
     if (user === null) throw 'No user with that id';
 
-    const deletionInfo = await userCollection.deleteOne({ _id: ObjectId(userId) });
+    const deletionInfo = await userCollection.deleteOne({ _id: new ObjectId(userId) });
 
     if (deletionInfo.deletedCount === 0) {
         throw `Could not delete Band with id of ${userId}`;
@@ -189,12 +196,26 @@ async function checkLogin(userName, password) {
     if (!userName || !password) throw "All fields are required"
     userName = Validation.checkUserName(userName);
     password = Validation.checkString(password, "password");
+    //find normal user
+    let resUser = null;
     let findUser = await findUserByUsername(userName);
-    if (!findUser) throw "Either userName or password is wrong";
+    //find business
+    // let findUser = await findUserByUsername(userName);
+    let findBusiness = null;
+    //find admin user
+    let findAdmin = await admindata.findAdminByadminName(userName);
+    if (findUser) {
+        resUser = findUser;
+    } else if (findAdmin) {
+        resUser = findAdmin;
+    } else if (findBusiness) {
+        resUser = findBusiness;
+    }
 
-    const match = await bcrypt.compare(password, findUser.hashedPassword);
+    if (!resUser) throw "Either userName or password is wrong";
+    const match = await bcrypt.compare(password, resUser.hashedPassword);
     if (match) {
-        return findUser;
+        return resUser;
     } else {
         throw "Either userName or password is wrong"
     }

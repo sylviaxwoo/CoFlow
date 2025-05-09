@@ -230,6 +230,12 @@ const exportedMethods = {
         }
 
         return age;
+    },
+    checkImageUrl(imageurl) {
+        return imageurl;
+    },
+    checkUrl(url) {
+        return url;
     }
 };
 

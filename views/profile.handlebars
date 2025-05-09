@@ -7,10 +7,18 @@
     <form action="/profile" method="POST" id="profile-form">
         <div class="profile-actions">
             <button type="button" id="edit-profile-btn">Edit Profile</button>
-            <button type="submit" id="save-profile-btn" style="display: none;">Save Changes</button>
+            <button type="button" id="save-profile-btn" style="display: none;">Save Changes</button>
             <button type="button" id="cancel-edit-btn" style="display: none;">Cancel</button>
         </div>
-
+        
+        <img name="shownPic", id = "shownPic" src="{{user.profilePicture}}" alt="shownPic">
+        <label for="uploadPic">Choose an image:</label>
+        <input type="file" id="uploadPic" name="uploadPic" accept="image/*" readonly disabled>
+        <input type="text" id="profilePicture" name="profilePicture" value="{{user.profilePicture}}" style="display:none;" >
+         <div>
+            <div>Rating:{{user.rating}}</div>
+        </div>
+        
         <h2>Basic Information</h2>
         <div class="form-group">
             <label for="userName">Username:</label>
@@ -72,6 +80,9 @@
             <label for="city">City (USA):</label>
             <input type="text" id="city" name="city" value="{{user.city}}" readonly>
             <div class="error-message" id="city-error"></div>
+        </div>
+        <div>
+            <div>Age:{{user.age}}</div>
         </div>
 
         <div class="form-group">

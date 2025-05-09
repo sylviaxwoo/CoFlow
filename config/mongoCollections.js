@@ -20,6 +20,7 @@ NOTE: YOU WILL NEED TO CHANGE THE CODE BELOW TO HAVE THE COLLECTION(S) REQUIRED 
 export const users = getCollectionFn('users');
 export const admin = getCollectionFn('admin');
 export const busers= getCollectionFn('business');
-export const badges = getCollectionFn('badges');
+// export const badges = getCollectionFn('badges');
 export const groups = getCollectionFn('groups');
 export const schedule = getCollectionFn('schedule');
+

@@ -7,7 +7,6 @@ import Validation from '../helpers.js'
 import * as admindata from '../data/admin.js';
 import * as businessdata from '../data/business.js';
 
-
 router.route('/signup')
     .get(middleware.signupRouteMiddleware, async(req, res) => {
         res.render('signup', { title: 'Sign Up' });
@@ -63,9 +62,10 @@ router.route('/signup')
                     userName: newUser.userName,
                     firstName: newUser.firstName,
                     lastName: newUser.lastName,
-                    role: "user"
+                    role: newUser.role
                 };
                 res.redirect('/profile');
+
             } else {
                 throw "Error: Failt to signup using createUser"
             }
@@ -93,9 +93,20 @@ router.route('/login')
                 userName: finduser.userName,
                 firstName: finduser.firstName,
                 lastName: finduser.lastName,
-                role: "user"
+                role: finduser.role
             };
-            res.redirect('/profile');
+            switch (finduser.role) {
+                case 'user':
+                    res.redirect('/profile');
+                    break;
+                case 'business':
+                    res.redirect('/profile/business');
+                    break;
+                case 'admin':
+                    res.redirect('/admin/admin-table');
+                    break;
+            }
+
 
         } catch (error) {
             console.error('Error during login:', error);

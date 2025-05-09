@@ -7,7 +7,7 @@ router.route('/').get(async(req, res) => {
     try {
         let user = null;
         if (req.session && req.session.user) {
-            user = await userdata.findUserById(req.session.user.id);
+            user = req.session.user;
         }
         res.render('home', {
             title: 'Home',

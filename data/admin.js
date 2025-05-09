@@ -1,102 +1,56 @@
-import { admins } from '../config/mongoCollections.js';
-import Validation from '../helpers.js';
+import { admin, api } from '../config/mongoCollections.js'
+import Validation from '../helpers.js'
 import { ObjectId } from 'mongodb';
-import bcrypt from 'bcrypt';
+import { findUserByUsername } from './user.js';
 
-async function createAdmin(userName, email, hashedPassword) {
-    if (!userName || !email || !hashedPassword) {
-        throw 'All fields must have valid values';
-    }
+async function createAdmin(userName, hashedPassword) {
+    if (!userName ||
+        !hashedPassword
+    )
+        throw 'Admin username and password fields need to have valid values';
+    userName = Validation.checkString(userName, "Validate username");
+    hashedPassword = Validation.checkString(hashedPassword, "hashedPassword");
+    const adminCollection = await admin();
 
-    userName = Validation.checkString(userName, "Username");
-    email = Validation.checkEmail(email).toLowerCase();
-    hashedPassword = Validation.checkString(hashedPassword, "Hashed password");
-
-    const adminCollection = await admins();
-    const findName = await findAdminByUsername(userName);
-    if (findName) throw "Username already exists";
-    const findEmail = await findAdminByEmail(email);
-    if (findEmail) throw "Email already exists";
-
-    const newAdmin = {
+    var newAdmin = {
         userName: userName,
-        email: email,
         hashedPassword: hashedPassword,
-        role: "admin",
-        createdAt: new Date().toISOString()
-    };
-
-    const insertInfo = await adminCollection.insertOne(newAdmin);
-    if (!insertInfo.insertedId) throw 'Failed to create admin';
-    return await findAdminById(insertInfo.insertedId.toString());
+        role: "admin"
+    }
+    const newInsertInformation = await adminCollection.insertOne(newAdmin);
+    if (!newInsertInformation.insertedId) throw 'Insert failed!';
+    // return await this.findUserById(newInsertInformation.insertedId.toString());
+    return await this.findAdminByadminName(userName);
 }
+
 
 async function findAdminById(adminId) {
-    if (!adminId) throw 'Admin ID is required';
+    if (!adminId) throw 'You must provide an userId to search for';
     adminId = Validation.checkId(adminId);
-    const adminCollection = await admins();
-    const admin = await adminCollection.findOne({ _id: new ObjectId(adminId) });
-    if (!admin) return null;
-    admin._id = admin._id.toString();
-    return admin;
-}
+    const adminCollection = await admin();
+    const findAdmin = await adminCollection.findOne({ _id: new ObjectId(adminId) });
+    if (findAdmin === null) return null;
+    findAdmin._id = findAdmin._id.toString();
+    return findAdmin;
+};
+async function findAdminByadminName(adminUserName) {
+    if (!adminUserName) throw 'You must provide an username to search for';
+    adminUserName = Validation.checkString(adminUserName, "check username");
+    const adminCollection = await admin();
+    const findAdmin = await adminCollection.findOne({ userName: adminUserName });
+    if (findAdmin === null) return null;
+    findAdmin._id = findAdmin._id.toString();
+    return findAdmin;
+};
 
-async function findAdminByUsername(username) {
-    if (!username) throw 'Username is required';
-    username = Validation.checkString(username, "Username");
-    const adminCollection = await admins();
-    const admin = await adminCollection.findOne({ userName: username });
-    if (!admin) return null;
-    admin._id = admin._id.toString();
-    return admin;
-}
-
-async function findAdminByEmail(email) {
-    if (!email) throw 'Email is required';
-    email = Validation.checkEmail(email);
-    const adminCollection = await admins();
-    const admin = await adminCollection.findOne({ email: email });
-    if (!admin) return null;
-    admin._id = admin._id.toString();
-    return admin;
-}
-
-async function getAllAdmins() {
-    const adminCollection = await admins();
-    return await adminCollection.find({}).toArray();
-}
-
-async function updateAdmin(adminId, updateData) {
-    if (!adminId) throw 'Admin ID is required';
-    adminId = Validation.checkId(adminId);
-    
-    const adminCollection = await admins();
-    const existingAdmin = await findAdminById(adminId);
-    if (!existingAdmin) throw 'Admin not found';
-
-    const updates = {};
-    if (updateData.userName) {
-        const existingUsername = await findAdminByUsername(updateData.userName);
-        if (existingUsername && existingUsername._id !== adminId) throw 'Username already exists';
-        updates.userName = Validation.checkString(updateData.userName, "Username");
-    }
-    if (updateData.email) {
-        const existingEmail = await findAdminByEmail(updateData.email);
-        if (existingEmail && existingEmail._id !== adminId) throw 'Email already exists';
-        updates.email = Validation.checkEmail(updateData.email).toLowerCase();
-    }
-    if (updateData.hashedPassword) {
-        updates.hashedPassword = Validation.checkString(updateData.hashedPassword, "Hashed password");
-    }
-
-    const result = await adminCollection.updateOne(
-        { _id: new ObjectId(adminId) },
-        { $set: updates }
-    );
-
-    if (result.modifiedCount === 0) throw 'No changes made';
-    return await findAdminById(adminId);
-}
+async function getAllAdmin() {
+    const adminCollection = await admin();
+    const adminList = await adminCollection.find({}).toArray();
+    adminList.forEach((element) => {
+        element._id = element._id.toString();
+    });
+    return adminList;
+};
 
 async function removeAdmin(adminId) {
     if (!adminId) throw 'Admin ID is required';
@@ -124,13 +78,7 @@ async function checkAdminLogin(userName, password) {
     return admin;
 }
 
-export {
-    createAdmin,
-    findAdminById,
-    findAdminByUsername,
-    findAdminByEmail,
-    getAllAdmins,
-    updateAdmin,
-    removeAdmin,
-    checkAdminLogin
-};
+
+
+export { createAdmin, findAdminById, findAdminByadminName, getAllAdmin, removeAdmin, updateAdmin }
+

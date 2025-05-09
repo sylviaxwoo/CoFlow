@@ -83,7 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const inputs = profileForm.querySelectorAll('input, textarea, select');
         inputs.forEach(input => {
             input.setAttribute('readonly', true);
-            if (input.type === 'radio' || input.type === 'select-one') {
+            console.log(input.type);
+            if (input.type === 'radio' || input.type === 'select-one' || input.type === 'file') {
                 input.setAttribute('disabled', true);
             }
         });
@@ -104,6 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (field.type === 'radio') {
                         const radio = profileForm.querySelector(`[name="${key}"][value="${value}"]`);
                         if (radio) radio.checked = true;
+                    } else if (field.type === 'file') {
+                        field.value = "";
                     } else {
                         field.value = value;
                     }
@@ -190,17 +193,61 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    if (profileForm) {
-        saveProfileBtn.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const formData = new FormData(profileForm);
-            console.log(FormData);
+    var uploadPic = document.getElementById('uploadPic') //input
+    var shownPic = document.getElementById("shownPic") // img
+    var profilePicture = document.getElementById("profilePicture") // text img
+    uploadPic.addEventListener('change', function() {
+        if (uploadPic.files[0]) {
+            if (!uploadPic || !shownPic) {
+                console.error('Element not found:', {
+                    uploadPic: uploadPic,
+                    shownPic: shownPic
+                });
+                return;
+            }
 
+            const cloudName = 'dknqbw5qg';
+            const uploadPreset = 'coflow'; // Your preset name
+            const fd = new FormData();
+
+            fd.append('file', uploadPic.files[0]);
+            fd.append('upload_preset', uploadPreset);
+            fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                    method: 'POST',
+                    body: fd
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Upload successful
+                    shownPic.src = data.secure_url;
+                    profilePicture.value = data.secure_url;
+                    console.log("picture upload successfully")
+                })
+                .catch(error => {
+                    console.error('Error uploading to Cloudinary:', error);
+                    console.log('Error uploading image. Please try again.', 'error');
+                });
+
+
+        }
+    });
+
+
+    if (profileForm) {
+        saveProfileBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+
+
+            var formData = new FormData(profileForm);
             const userName = formData.get('userName');
             const firstName = formData.get('firstName');
             const lastName = formData.get('lastName');
             const email = formData.get('email');
-            const password = formData.get('password');
             const bio = formData.get('bio');
             const gender = formData.get('gender');
             const state = formData.get('state');
@@ -214,7 +261,6 @@ document.addEventListener('DOMContentLoaded', () => {
             var firstNameError = document.getElementById('firstName-error');
             var lastNameError = document.getElementById('lastName-error');
             var emailError = document.getElementById('email-error');
-            var passwordError = document.getElementById('password-error');
             var bioError = document.getElementById('bio-error');
             var genderError = document.getElementById('gender-error');
             // var stateError = document.getElementById('state-error');
@@ -227,7 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
             firstNameError.textContent = '';
             lastNameError.textContent = '';
             emailError.textContent = '';
-            passwordError.textContent = '';
             bioError.textContent = '';
             genderError.textContent = '';
             // stateError
@@ -242,12 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 checkUserName(userName);
             } catch (e) {
                 userNameError.textContent = e;
-                isFormValid = false;
-            }
-            try {
-                checkPassword(password, "password");
-            } catch (e) {
-                passwordError.textContent = e;
                 isFormValid = false;
             }
             try {

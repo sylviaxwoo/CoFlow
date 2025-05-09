@@ -5,7 +5,6 @@ import middleware from '../middleware.js';
 import Validation from '../helpers.js';
 
 
-
 router.route('/')
     .get(middleware.userRouteMiddleware, async(req, res) => {
         try {
@@ -21,11 +20,11 @@ router.route('/')
     })
     .post(async(req, res) => {
         const formData = req.body;
-
-        console.log('Profile Form Data:', formData);
-
-        let { userName, firstName, lastName, email, bio, gender, state, city, dob, courses, education } = req.body;
+        console.log("Route profile form Data", formData);
+        let { uploadPic, profilePicture, userName, firstName, lastName, email, bio, gender, state, city, dob, courses, education } = req.body;
         const lastuserName = req.session.user.userName;
+        console.log(profilePicture);
+
         try {
             const originUsername = await profiledata.findUserByUsername(lastuserName);
             if (!originUsername) {
@@ -52,6 +51,7 @@ router.route('/')
             firstName = Validation.checkString(firstName, "Validate firstName").toLowerCase();
             lastName = Validation.checkString(lastName, "Validate lastName").toLowerCase();
             email = Validation.checkEmail(email).toLowerCase();
+            profilePicture = Validation.checkImageUrl(profilePicture);
 
             courses = courses != '' ? courses.split(',').map(element => element.trim()) : null;
             bio = bio ? Validation.checkString(bio, "bio") : '';
@@ -62,8 +62,8 @@ router.route('/')
             courses = courses ? Validation.checkStringArray(courses) : [];
             education = education ? Validation.checkEducation(education) : [];
 
-
-            let updateUser = await profiledata.updateUserProfile(lastuserName, userName, firstName, lastName, email, bio, gender, state, city, dob, courses, education);
+            console.log(profilePicture);
+            let updateUser = await profiledata.updateUserProfile(lastuserName, userName, firstName, lastName, email, bio, gender, state, city, dob, courses, education, profilePicture);
             if (updateUser) {
                 req.session.user = {
                     id: updateUser._id,
@@ -82,15 +82,7 @@ router.route('/')
             res.render('profile', { title: 'Profile', error: error });
         }
     });
-router.route('/admin').get(middleware.superuserRouteMiddleware, async(req, res) => {
-    try {
-        const user = await profiledata.findUserById(req.session.user.id);
-        res.render('profile', { title: 'Profile', user: user });
-    } catch (error) {
-        console.error('Error fetching profile:', error);
-        res.redirect('/auth/login');
-    }
-});
+
 router.route('/business').get(async(req, res) => {
     try {
         const user = await profiledata.findUserById(req.session.user.id);

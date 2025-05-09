@@ -121,3 +121,7 @@ button:hover {
 #cancel-edit-btn:hover {
     background-color: #ec971f;
 }
+
+img {
+    width: 300px;
+}

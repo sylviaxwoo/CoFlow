@@ -25,9 +25,16 @@
         <div class="error-message" id="email-error"></div>
     </div>
     <div class="form-signup required">
-        <label for="password">Password:</label>
+        <label for="password">Password: <div class="tooltip-icon" title="Show password requirements">?</div></label>
+       
         <input type="password" id="password" name="password" required>
         <div class="error-message" id="password-error"></div>
+        <div id="password-tooltip" class="">
+                    Password must be at least 8 characters long and contain:<br>
+                    - At least one lowercase letter<br>
+                    - At least one uppercase letter<br>
+                    - At least one special character
+                </div>
     </div>
 
     <h2>Additional Information</h2>

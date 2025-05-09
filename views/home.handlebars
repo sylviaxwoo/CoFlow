@@ -1,9 +1,22 @@
 <h1>Welcome to CoFlow!</h1>
-<p>This is the main page content. You can add information about your website here.</p>
+<p>CoFlow aims to create a vibrant learning community where students can collaborate effectively. Users can:</p>
+<p>- Browse groups by category or create their own with customized parameters.</p>
+<p>- Connect via personalized profiles, direct messaging, and integrated calendars.</p>
+<p>- Engage in a rewarding experience with ratings, badges, and achievements.</p>
+
+<p>By leveraging PWA capabilities, CoFlow ensures accessibility and a native-like experience on mobile devices, making it easy for students to study together anytime, anywhere.</p>
 
 {{#if user}}
     <p>You are logged in as {{user.userName}}.</p>
+    {{#if (eq user.role "user")}}
     <p><a href="/profile">View your profile</a>.</p>
+    {{/if}}
+    {{#if (eq user.role "admin")}}
+    <p><a href="/admin/admin-table">Go to Admin Table</a>.</p>
+    {{/if}}
+    {{#if (eq user.role "business")}}
+    <p><a href="/profile/business">Go to Business Profile</a>.</p>
+    {{/if}}
 {{else}}
     <p>Please <a href="/auth/signup">sign up</a> or <a href="/auth/login">log in</a> to access more features.</p>
 {{/if}}
