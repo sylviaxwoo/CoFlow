@@ -52,21 +52,32 @@ const signupRouteMiddleware = (req, res, next) => {
     }
     next();
 };
-// not login direct to login page
-const userRouteMiddleware = (req, res, next) => {
+
+// eror page if not superuser
+const superuserRouteMiddleware = (req, res, next) => {
     if (!req.session || !req.session.user) {
         return res.redirect('/auth/login');
     }
-
-    next();
-};
-// eror page if not superuser
-const superuserRouteMiddleware = (req, res, next) => {
-    if (req.session.user.role !== 'superuser') {
+    if (req.session.user.role !== 'admin') {
         return res.status(403).render('error', {
             title: 'Access Denied',
             message: 'You do not have permission to view this page.',
         });
+    }
+
+    next();
+};
+const userRouteMiddleware = (req, res, next) => {
+    if (!req.session || !req.session.user) {
+        return res.redirect('/auth/login');
+    }
+    if (req.session && req.session.user) {
+        if (req.session.user.role !== 'user') {
+            return res.status(403).render('error', {
+                title: 'Access Denied',
+                message: 'You do not have permission to view this page.',
+            });
+        }
     }
 
     next();
@@ -79,6 +90,8 @@ const signoutRouteMiddleware = (req, res, next) => {
     }
     next();
 };
+
+
 
 export default {
     loggingMiddleware,

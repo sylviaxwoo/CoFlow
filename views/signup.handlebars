@@ -1,6 +1,6 @@
 <h1>Sign Up</h1>
 {{#if error}}
-    <p class="error">{{error}}</p>
+    <p id="error" class="error">{{error}}</p>
 {{/if}}
 <form action="/auth/signup" method="POST" id="signup-form">
     <h2>Basic Information</h2>
@@ -25,9 +25,16 @@
         <div class="error-message" id="email-error"></div>
     </div>
     <div class="form-signup required">
-        <label for="password">Password:</label>
+        <label for="password">Password: <div class="tooltip-icon" title="Show password requirements">?</div></label>
+       
         <input type="password" id="password" name="password" required>
         <div class="error-message" id="password-error"></div>
+        <div id="password-tooltip" class="">
+                    Password must be at least 8 characters long and contain:<br>
+                    - At least one lowercase letter<br>
+                    - At least one uppercase letter<br>
+                    - At least one special character
+                </div>
     </div>
 
     <h2>Additional Information</h2>
@@ -84,6 +91,7 @@
     </div>
 
     <div class="form-signup education">
+        <div class="error-message" id="education-error"></div>
         <label>Education (Up to 5):</label>
         <div id="education-container">
             <div class="education-item">
@@ -112,7 +120,7 @@
             </div>
         </div>
         <button type="button" id="add-education-btn">+ Add Education</button>
-        <div class="error-message" id="education-error"></div>
+        
     </div>
 
     <div class="form-signup required">

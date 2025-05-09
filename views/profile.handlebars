@@ -1,10 +1,137 @@
 <h1>User Profile</h1>
+{{#if error}}
+    <p id="error" class="error">{{error}}</p>
+{{/if}}
 {{#if user}}
-    <p><strong>Username:</strong> {{user.userName}}</p>
-    <p><strong>First Name:</strong> {{user.firstName}}</p>
-    <p><strong>Last Name:</strong> {{user.lastName}}</p>
-    <p><strong>Email:</strong> {{user.email}}</p>
-    <p><a href="/auth/logout">Logout</a></p>
+<div id="profile-container">
+    <form action="/profile" method="POST" id="profile-form">
+        <div class="profile-actions">
+            <button type="button" id="edit-profile-btn">Edit Profile</button>
+            <button type="button" id="save-profile-btn" style="display: none;">Save Changes</button>
+            <button type="button" id="cancel-edit-btn" style="display: none;">Cancel</button>
+        </div>
+        
+        <img name="shownPic", id = "shownPic" src="{{user.profilePicture}}" alt="shownPic">
+        <label for="uploadPic">Choose an image:</label>
+        <input type="file" id="uploadPic" name="uploadPic" accept="image/*" readonly disabled>
+        <input type="text" id="profilePicture" name="profilePicture" value="{{user.profilePicture}}" style="display:none;" >
+         <div>
+            <div>Rating:{{user.rating}}</div>
+        </div>
+        
+        <h2>Basic Information</h2>
+        <div class="form-group">
+            <label for="userName">Username:</label>
+            <input type="text" id="userName" name="userName" value="{{user.userName}}" readonly>
+            <div class="error-message" id="userName-error"></div>
+        </div>
+        <div class="form-group">
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" value="{{user.firstName}}" readonly>
+            <div class="error-message" id="firstName-error"></div>
+        </div>
+        <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" value="{{user.lastName}}" readonly>
+            <div class="error-message" id="lastName-error"></div>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="{{user.email}}" readonly>
+            <div class="error-message" id="email-error"></div>
+        </div>
+
+        <h2>Additional Information</h2>
+        <div class="form-group">
+            <label for="bio">Bio:</label>
+            <textarea id="bio" name="bio" readonly>{{user.bio}}</textarea>
+            <div class="error-message" id="bio-error"></div>
+        </div>
+
+        <div class="form-group radio">
+            <label>Gender:</label>
+            <div>
+                <input type="radio" id="gender-male" name="gender" value="Male" {{#if (eq user.gender "male")}}checked{{/if}} disabled>
+                <label for="gender-male">Male</label>
+            </div>
+            <div>
+                <input type="radio" id="gender-female" name="gender" value="Female" {{#if (eq user.gender "female")}}checked{{/if}} disabled>
+                <label for="gender-female">Female</label>
+            </div>
+            <div>
+                <input type="radio" id="gender-other" name="gender" value="Other" {{#if (eq user.gender "other")}}checked{{/if}} disabled>
+                <label for="gender-other">Other</label>
+            </div>
+            <div class="error-message" id="gender-error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="state">State (USA):</label>
+            <select id="state" name="state" disabled>
+                <option value="">Select State</option>
+                {{#each states}}
+                    <option value="{{this}}" {{#if (eq ../user.state this)}}selected{{/if}}>{{this}}</option>
+                {{/each}}
+            </select>
+            <div class="error-message" id="state-error"></div>
+        </div>
+        
+        <div class="form-group">
+            <label for="city">City (USA):</label>
+            <input type="text" id="city" name="city" value="{{user.city}}" readonly>
+            <div class="error-message" id="city-error"></div>
+        </div>
+        <div>
+            <div>Age:{{user.age}}</div>
+        </div>
+
+        <div class="form-group">
+            <label for="dob">Date of Birth:</label>
+            <input type="date" id="dob" name="dob" value="{{user.dob}}" readonly>
+            <div class="error-message" id="dob-error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="courses">Courses:</label>
+            <input type="text" id="courses" name="courses" value="{{user.courses}}" readonly>
+            <div class="error-message" id="courses-error"></div>
+        </div>
+
+        <div class="form-group education">
+            <label>Education:</label>
+            <div id="education-container">
+                {{#each user.education}}
+                <div class="education-item" data-index="{{@index}}">
+                    <h3>Education {{add @index 1}}</h3>
+                    <div class="nested-form-group">
+                        <label for="school-{{@index}}">School Name:</label>
+                        <input type="text" id="school-{{@index}}" name="education[{{@index}}][schoolName]" value="{{this.schoolName}}" readonly>
+                    </div>
+                    <div class="nested-form-group">
+                        <label for="educationLevel-{{@index}}">Education Level:</label>
+                        <input type="text" id="educationLevel-{{@index}}" name="education[{{@index}}][educationLevel]" value="{{this.educationLevel}}" readonly>
+                    </div>
+                    <div class="nested-form-group">
+                        <label for="major-{{@index}}">Major:</label>
+                        <input type="text" id="major-{{@index}}" name="education[{{@index}}][major]" value="{{this.major}}" readonly>
+                    </div>
+                    <div class="nested-form-group">
+                        <label for="startDate-{{@index}}">Start Date:</label>
+                        <input type="date" id="startDate-{{@index}}" name="education[{{@index}}][startDate]" value="{{this.startDate}}" readonly>
+                    </div>
+                    <div class="nested-form-group">
+                        <label for="endDate-{{@index}}">End Date:</label>
+                        <input type="date" id="endDate-{{@index}}" name="education[{{@index}}][endDate]" value="{{this.endDate}}" readonly>
+                    </div>
+                    <button type="button" class="remove-education-btn" data-index="{{@index}}" style="display: none;">- Remove</button>
+                </div>
+                {{/each}}
+            </div>
+            <button type="button" id="add-education-btn" style="display: none;">+ Add Education</button>
+            <div class="error-message" id="education-error"></div>
+        </div>
+    </form>
+</div>
 {{else}}
     <p>You are not logged in.</p>
     <p><a href="/auth/login">Login</a></p>

@@ -1,10 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
+
     const signupForm = document.getElementById('signup-form');
     const addEducationBtn = document.getElementById('add-education-btn');
     const educationContainer = document.getElementById('education-container');
     let educationCount = 1;
     const maxEducation = 5;
+    const tooltipIcon = document.querySelector('.tooltip-icon');
+    const passwordTooltip = document.getElementById('password-tooltip');
+    tooltipIcon.addEventListener('mouseenter', () => {
+        passwordTooltip.style.display = 'block';
+    });
 
+    tooltipIcon.addEventListener('mouseleave', () => {
+        passwordTooltip.style.display = 'none';
+    });
     // Function to generate a new education item HTML
     function createEducationItem(index) {
         return `
@@ -12,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3>Education ${index + 1}</h3>
                 <div class="nested-form-group">
                     <label for="school-${index}">School Name:</label>
-                    <input type="text" id="school-${index}" name="education[${index}][schoolName]">
+                    <input type="text" id="school-${index}" name="education[${index}][schoolName] required">
                 </div>
                 <div class="nested-form-group">
                     <label for="educationLevel-${index}">Education Level:</label>
@@ -45,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             alert(`You can add a maximum of ${maxEducation} education entries.`);
         }
+        reIndexEducationItems();
     });
 
     // Function to attach event listeners to remove education buttons
@@ -67,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to re-index education items after removal
     function reIndexEducationItems() {
-        const educationItems = document.querySelectorAll('#education-container .education-item');
+        const educationItems = document.querySelectorAll('.education-item');
         educationItems.forEach((item, index) => {
             item.querySelector('h3').textContent = `Education ${index + 1}`;
             item.querySelectorAll('[id^="school-"]').forEach(el => el.id = `school-${index}`);
@@ -94,45 +104,169 @@ document.addEventListener('DOMContentLoaded', () => {
         stateDropdown.appendChild(option);
     });
 
-    // Basic form validation (you should add more robust validation)
-    signupForm.addEventListener('submit', (event) => {
-        let isValid = true;
-        const errors = {};
+    if (signupForm) {
+        signupForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const formData = new FormData(signupForm);
 
-        // Check required fields
-        signupForm.querySelectorAll('.required input[type="text"], .required input[type="email"], .required input[type="password"], .required input[type="checkbox"]').forEach(input => {
-            if (!input.value.trim() && input.type !== 'checkbox') {
-                isValid = false;
-                errors[input.name] = `${input.previousElementSibling.textContent.slice(0, -1)} is required.`;
-                document.getElementById(`${input.id}-error`).textContent = errors[input.name];
-            } else if (input.type === 'email' && input.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim())) {
-                isValid = false;
-                errors[input.name] = 'Invalid email format.';
-                document.getElementById(`${input.id}-error`).textContent = errors[input.name];
-            } else if (input.type === 'checkbox' && !input.checked) {
-                isValid = false;
-                errors[input.name] = `You must agree to the ${input.nextElementSibling.textContent}.`;
-                document.getElementById(`${input.id}-error`).textContent = errors[input.name];
-            } else {
-                document.getElementById(`${input.id}-error`).textContent = '';
+            const userName = formData.get('userName');
+            const firstName = formData.get('firstName');
+            const lastName = formData.get('lastName');
+            const email = formData.get('email');
+            const password = formData.get('password');
+            const bio = formData.get('bio');
+            const gender = formData.get('gender');
+            const state = formData.get('state');
+            const city = formData.get('city');
+            const dob = formData.get('dob');
+            const courses = formData.get('courses');
+            const terms = formData.get('terms');
+            const privacy = formData.get('privacy');
+
+            var userNameError = document.getElementById('userName-error');
+            var firstNameError = document.getElementById('firstName-error');
+            var lastNameError = document.getElementById('lastName-error');
+            var emailError = document.getElementById('email-error');
+            var passwordError = document.getElementById('password-error');
+            var bioError = document.getElementById('bio-error');
+            var genderError = document.getElementById('gender-error');
+            // var stateError = document.getElementById('state-error');
+            // var cityError = document.getElementById('city-error');
+            var dobError = document.getElementById('dob-error');
+            var coursesError = document.getElementById('courses-error');
+            var educationError = document.getElementById('education-error');
+
+            userNameError.textContent = '';
+            firstNameError.textContent = '';
+            lastNameError.textContent = '';
+            emailError.textContent = '';
+            passwordError.textContent = '';
+            bioError.textContent = '';
+            genderError.textContent = '';
+            // stateError
+            // cityError
+            dobError.textContent = '';
+            coursesError.textContent = '';
+            educationError.textContent = '';
+
+            var isFormValid = true;
+            try {
+                userNameError.textContent = '';
+                checkUserName(userName);
+            } catch (e) {
+                userNameError.textContent = e;
+                isFormValid = false;
             }
+            try {
+                checkPassword(password, "password");
+            } catch (e) {
+                passwordError.textContent = e;
+                isFormValid = false;
+            }
+            try {
+                checkString(firstName, "First Name");
+            } catch (e) {
+                firstNameError.textContent = e;
+                isFormValid = false;
+            }
+
+            try {
+                checkString(lastName, "Last Name");
+            } catch (e) {
+                lastNameError.textContent = e;
+                isFormValid = false;
+            }
+            try {
+                checkEmail(email);
+            } catch (e) {
+                emailError.textContent = e;
+                isFormValid = false;
+            }
+            try {
+                bio ? checkString(bio) : "";
+            } catch (e) {
+                bioError.textContent = e;
+                isFormValid = false;
+            }
+
+            //Gender
+            try {
+                gender ? checkGender(gender) : "";
+            } catch (e) {
+                genderError.textContent = e;
+                isFormValid = false;
+            }
+
+            //State
+            // try {
+            //     checkState(state);
+            // } catch (e) {
+            //     stateError.textContent = e;
+            //     isFormValid = false;
+            // }
+
+            //City
+            // try {
+            //     checkCity(city);
+            // } catch (e) {
+            //     cityError.textContent = e;
+            //     isFormValid = false;
+            // }
+
+            //dob
+            try {
+                dob ? checkDate(dob) : '';
+            } catch (e) {
+                dobError.textContent = e;
+                isFormValid = false;
+            }
+
+            //courses
+            try {
+                courses ? checkStringArray(courses.trim().split(','), "Courses") : '';
+            } catch (e) {
+                coursesError.textContent = e;
+                isFormValid = false;
+            }
+
+            const educations = document.querySelectorAll('.education-item');
+            if (educations) {
+                educations.forEach((edu, index) => {
+                    var schoolName = edu.querySelector(`[name="education[${index}][schoolName]"]`);
+                    schoolName = schoolName ? schoolName.value : ""
+                    var educationLevel = edu.querySelector(`[name="education[${index}][educationLevel]"]`);
+                    var educationLevel = educationLevel ? educationLevel.value : "";
+                    var major = edu.querySelector(`[name="education[${index}][major]"]`);
+                    var major = major ? major.value : "";
+                    var startDate = edu.querySelector(`[name="education[${index}][startDate]"]`);
+                    var startDate = startDate ? startDate.value : "";
+                    var endDate = edu.querySelector(`[name="education[${index}][endDate]"]`);
+                    var endDate = endDate ? endDate.value : "";
+                    try {
+                        checkString(schoolName, `Education-${index + 1} School Name`);
+                        educationLevel ? checkString(educationLevel, `Education-${index + 1} Education Level`) : "";
+                        major ? checkString(major, `Education-${index + 1} Major`) : "";
+                        startDate ? checkDate(startDate, `Education-${index + 1} Start Date`) : "";
+                        endDate ? checkDate(endDate, `Education-${index + 1} End Date`) : "";
+                    } catch (error) {
+                        educationError.textContent += error + '; ';
+                        isFormValid = false;
+                    }
+                })
+            };
+
+            if (isFormValid) {
+                signupForm.submit();
+            } else {
+                console.log('Form has errors.');
+            }
+
+
         });
 
-        // Password confirmation (add if you include it)
-        // const password = document.getElementById('password').value;
-        // const confirmPassword = document.getElementById('confirmPassword').value;
-        // if (confirmPassword && password !== confirmPassword) {
-        //     isValid = false;
-        //     errors['confirmPassword'] = 'Passwords do not match.';
-        //     document.getElementById('confirmPassword-error').textContent = errors['confirmPassword'];
-        // }
 
-        if (!isValid) {
-            event.preventDefault();
-            console.log('Validation errors:', errors);
-        }
-    });
+    }
 
-    // Initial attachment of remove education listeners
+
     attachRemoveEducationListeners();
 });

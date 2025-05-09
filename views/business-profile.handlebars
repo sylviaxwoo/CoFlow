@@ -1,0 +1,106 @@
+<link rel="stylesheet" href="/public/css/business.css">
+
+<div class="business-profile-container">
+    <h1>{{user.company}} Profile</h1>
+    
+    {{#if success}}
+        <div class="alert alert-success">{{success}}</div>
+    {{/if}}
+    {{#if error}}
+        <div class="alert alert-danger">{{error}}</div>
+    {{/if}}
+
+    <form action="/business/profile/update" method="POST" class="business-profile-form">
+        <!-- Basic Information -->
+        <fieldset>
+            <legend>Basic Information</legend>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="company">Company Name *</label>
+                    <input type="text" id="company" name="company" value="{{business.company}}" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Contact Email *</label>
+                    <input type="email" id="email" name="email" value="{{business.email}}" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" name="phone" value="{{business.phone}}" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="3">{{business.description}}</textarea>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Location -->
+        <fieldset>
+            <legend>Location</legend>
+            <div class="form-group">
+                <label for="address">Street Address</label>
+                <input type="text" id="address" name="address" value="{{business.address}}">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" id="city" name="city" value="{{business.city}}">
+                </div>
+                <div class="form-group">
+                    <label for="state">State/Province</label>
+                    <select id="state" name="state">
+                        <option value="">Select State</option>
+                        {{#each states}}
+                            <option value="{{this}}" {{#eq this ../business.state}}selected{{/eq}}>{{this}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Course Management -->
+        <fieldset class="courses-section">
+            <legend>Offered Courses</legend>
+            <div id="courses-container">
+                {{#each business.courses}}
+                    <div class="course-item">
+                        <input type="text" name="courses[]" value="{{this}}" placeholder="Course name">
+                        <button type="button" class="btn-remove-course">×</button>
+                    </div>
+                {{/each}}
+            </div>
+            <button type="button" id="add-course-btn" class="btn-secondary">+ Add Course</button>
+        </fieldset>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Save Changes</button>
+            <a href="/business/dashboard" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add course field
+        document.getElementById('add-course-btn').addEventListener('click', function() {
+            const container = document.getElementById('courses-container');
+            const div = document.createElement('div');
+            div.className = 'course-item';
+            div.innerHTML = `
+                <input type="text" name="courses[]" placeholder="Course name">
+                <button type="button" class="btn-remove-course">×</button>
+            `;
+            container.appendChild(div);
+        });
+
+        // Remove course field
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-remove-course')) {
+                e.target.parentElement.remove();
+            }
+        });
+    });
+</script>

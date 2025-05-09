@@ -1,0 +1,51 @@
+<link rel="stylesheet" href="/public/css/business.css">
+
+<div class="business-portal">
+    <header class="business-header">
+        <h1>{{user.company}} Portal</h1>
+        <p>Logged in as {{user.userName}}</p>
+    </header>
+
+    <div class="business-content">
+        <nav class="business-nav">
+            <ul>
+                <li><a href="/business/dashboard" class="{{#if active.dashboard}}active{{/if}}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a></li>
+                <li><a href="/business/courses" class="{{#if active.courses}}active{{/if}}">
+                    <i class="fas fa-book"></i> Course Management
+                </a></li>
+                <li><a href="/business/employees" class="{{#if active.employees}}active{{/if}}">
+                    <i class="fas fa-users"></i> Employees
+                </a></li>
+                <li><a href="/business/reports" class="{{#if active.reports}}active{{/if}}">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a></li>
+                <li><a href="/business/settings" class="{{#if active.settings}}active{{/if}}">
+                    <i class="fas fa-cog"></i> Settings
+                </a></li>
+            </ul>
+        </nav>
+
+        <main class="business-main">
+            {{#if stats}}
+            <div class="quick-stats">
+                <div class="stat-item">
+                    <span>Active Courses</span>
+                    <strong>{{stats.activeCourses}}</strong>
+                </div>
+                <div class="stat-item">
+                    <span>Enrolled Employees</span>
+                    <strong>{{stats.enrolledEmployees}}</strong>
+                </div>
+                <div class="stat-item">
+                    <span>Completion Rate</span>
+                    <strong>{{stats.completionRate}}%</strong>
+                </div>
+            </div>
+            {{/if}}
+
+            {{{body}}}
+        </main>
+    </div>
+</div>

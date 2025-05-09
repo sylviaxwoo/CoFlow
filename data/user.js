@@ -1,7 +1,9 @@
 import { users } from '../config/mongoCollections.js'
+import * as admindata from './admin.js'
 import Validation from '../helpers.js'
 import { ObjectId } from 'mongodb';
 import bcrypt from 'bcrypt';
+
 async function createUser(userName, firstName, lastName, email, hashedPassword, bio, gender, city, state, dob, courses, education, terms, privacy) {
     if (!userName ||
         !firstName ||
@@ -51,7 +53,7 @@ async function createUser(userName, firstName, lastName, email, hashedPassword, 
         terms: terms,
         privacy: privacy,
         profilePicture: '',
-        rating: '',
+        rating: 0,
         badgeIds: [],
         schedule: [],
         notificationSettings: {},
@@ -100,13 +102,78 @@ async function findUserById(userId) {
 async function getAllUsers() {
     const userCollection = await users();
     const userList = await userCollection.find({}).toArray();
+    userList.forEach((element) => {
+        element._id = element._id.toString();
+    });
     return userList;
 };
 
-async function updateUser(userName, firstName, lastName, email,
-    hashedPassword, bio, gender, city, state, dob, courses, education,
-    badgeIds, profilePicture, rating, notificationSettings, createdGroups, schedule, joinedGroups) {
+async function updateUserProfile(lastuserName, userName, firstName, lastName, email, bio, gender, state, city, dob, courses, education, profilePicture) {
+    console.log(profilePicture);
+    if (!userName ||
+        !firstName ||
+        !lastName ||
+        !email ||
+        !lastuserName
+    ) throw 'basic info fields need to have valid values';
 
+    var originUserData = await this.findUserByUsername(lastuserName);
+    if (!originUserData) {
+        return res.render('profile', { title: 'Profile', error: 'originalUsername not exists.' });
+    }
+    var { _id, ...originUser } = originUserData;
+
+    const existingUsername = await this.findUserByUsername(userName);
+    if (existingUsername && (userName != lastuserName)) {
+        return res.render('profile', { title: 'Profile', error: 'Username already exists.' });
+    }
+    const existingemail = await this.findUserByEmail(email);
+    if (existingemail && (email != originUser.email)) {
+        return res.render('profile', { title: 'Profile', error: 'Email already registered.' });
+    }
+
+    userName = Validation.checkString(userName, "Validate username").toLowerCase();
+    firstName = Validation.checkString(firstName, "Validate firstName").toLowerCase();
+    lastName = Validation.checkString(lastName, "Validate lastName").toLowerCase();
+    email = Validation.checkEmail(email).toLowerCase();
+    bio = bio ? Validation.checkString(bio, "bio") : '';
+    gender = gender ? Validation.checkGender(gender, "gender") : '';
+    city = city ? Validation.checkString(city, "city") : '';
+    state = state ? Validation.checkString(state, "state") : '';
+    dob = dob ? Validation.checkDate(dob) : '';
+    courses = courses ? Validation.checkStringArray(courses) : [];
+    education = education ? Validation.checkEducation(education) : [];
+    profilePicture = profilePicture ? Validation.checkImageUrl(profilePicture) : '';
+
+    if (userName) originUser.userName = userName;
+    if (firstName) originUser.firstName = firstName;
+    if (lastName) originUser.lastName = lastName;
+    if (email) originUser.email = email;
+
+    if (courses) originUser.courses = courses;
+    if (bio) originUser.bio = bio;
+    if (gender) originUser.gender = gender;
+    if (city) originUser.city = city;
+    if (state) originUser.state = state;
+    if (dob) {
+        originUser.dob = dob
+        originUser.age = dob != '' ? Validation.getAge(dob) : ''
+    };
+    if (courses) originUser.courses = courses;
+    if (education) originUser.education = education;
+    if (profilePicture) originUser.profilePicture = profilePicture;
+
+    console.log(originUser);
+
+    const userCollection = await users();
+    let userId = originUserData._id.toString();
+
+    const updatedUser = await userCollection.updateOne({ _id: new ObjectId(userId) }, { $set: originUser });
+    if (!updatedUser.matchedCount && !updatedUser.modifiedCount) {
+        throw 'could not update user successfully';
+    }
+    const user = await this.findUserById(userId);
+    return user;
 };
 
 async function removeUser(userId) {
@@ -116,7 +183,7 @@ async function removeUser(userId) {
     const user = await findUserById(userId);
     if (user === null) throw 'No user with that id';
 
-    const deletionInfo = await userCollection.deleteOne({ _id: ObjectId(userId) });
+    const deletionInfo = await userCollection.deleteOne({ _id: new ObjectId(userId) });
 
     if (deletionInfo.deletedCount === 0) {
         throw `Could not delete Band with id of ${userId}`;
@@ -127,19 +194,32 @@ async function removeUser(userId) {
 
 async function checkLogin(userName, password) {
     if (!userName || !password) throw "All fields are required"
-    userName = Validation.checkString(userName);
-    password = Validation.checkPassword(password, "password");
+    userName = Validation.checkUserName(userName);
+    password = Validation.checkString(password, "password");
+    //find normal user
+    let resUser = null;
     let findUser = await findUserByUsername(userName);
-    console.log(findUser)
-    if (!findUser) throw "Either userName or password is wrong";
+    //find business
+    // let findUser = await findUserByUsername(userName);
+    let findBusiness = null;
+    //find admin user
+    let findAdmin = await admindata.findAdminByadminName(userName);
+    if (findUser) {
+        resUser = findUser;
+    } else if (findAdmin) {
+        resUser = findAdmin;
+    } else if (findBusiness) {
+        resUser = findBusiness;
+    }
 
-    const match = await bcrypt.compare(password, findUser.hashedPassword);
+    if (!resUser) throw "Either userName or password is wrong";
+    const match = await bcrypt.compare(password, resUser.hashedPassword);
     if (match) {
-        return findUser;
+        return resUser;
     } else {
         throw "Either userName or password is wrong"
     }
 
 };
 
-export { createUser, findUserByEmail, findUserByUsername, findUserById, getAllUsers, updateUser, removeUser, checkLogin };
+export { createUser, findUserByEmail, findUserByUsername, findUserById, getAllUsers, updateUserProfile, removeUser, checkLogin };
