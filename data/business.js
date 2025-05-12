@@ -3,54 +3,67 @@ import { groups } from '../config/mongoCollections.js';
 import Validation from '../helpers.js';
 import { ObjectId } from 'mongodb';
 import bcrypt from 'bcrypt';
-const { formatTime } = require('../helpers.js');//获取标准时间，helpers记得更新
+import formatTime from '../helpers.js';//获取标准时间，helpers记得更新
 
 async function createBuser(userName, company, email, phone, description, hashedPassword, address, city, state, courses, terms, privacy) {
-    if (!userName || !company || !email || !phone || !description || !hashedPassword || !address || !city || !state || !courses || terms !== 'on' || privacy !== 'on') {
+    console.log('createBuser called with data:', { userName, company, email, phone, description, address, city, state, courses, terms, privacy });
+    
+    if (!userName || !company || !email || !phone || !description || !hashedPassword || !address || !city || !state || !terms || !privacy) {
+        console.error('Missing required fields in createBuser');
         throw 'All required fields must have valid values';
     }
 
-    userName = Validation.checkString(userName, "Username");
-    company = Validation.checkString(company, "Company");
-    email = Validation.checkEmail(email).toLowerCase();
-    phone = Validation.checkPhone(phone, "Phone");
-    description = Validation.checkString(description, "Description");
-    hashedPassword = Validation.checkString(hashedPassword, "Hashed password");
-    address = Validation.checkString(address, "Address");
-    city = Validation.checkString(city, "City");
-    state = Validation.checkString(state, "State");
-    courses = Validation.checkStringArray(courses, "Courses");
+    try {
+        userName = Validation.checkString(userName, "Username");
+        company = Validation.checkString(company, "Company");
+        email = Validation.checkEmail(email).toLowerCase();
+        phone = Validation.checkPhone(phone, "Phone");
+        description = Validation.checkString(description, "Description");
+        address = Validation.checkString(address, "Address");
+        city = Validation.checkString(city, "City");
+        state = Validation.checkString(state, "State");
+        courses = Validation.checkStringArray(courses, "Courses");
 
-    const buserCollection = await busers();
-    const existingUsername = await findBuserByUsername(userName);
-    if (existingUsername) throw 'Username already exists';
-    const existingEmail = await findBuserByEmail(email);
-    if (existingEmail) throw 'Email already exists';
+        console.log('Checking for existing username and email...');
+        const buserCollection = await busers();
+        const existingUsername = await findBuserByUsername(userName);
+        if (existingUsername) throw 'Username already exists';
+        const existingEmail = await findBuserByEmail(email);
+        if (existingEmail) throw 'Email already exists';
 
-    const newBuser = {
-        userName,
-        company,
-        email,
-        phone,
-        description,
-        hashedPassword,
-        address,
-        city,
-        state,
-        courses,
-        terms: true,
-        privacy: true,
-        role: "business",
-        createdAt: new Date().toISOString(),
-        schedule: [],
-        notificationSettings: {},
-        createdgroups: [],
-        joinedgroups: []
-    };
+        console.log('Creating new business user...');
+        const newBuser = {
+            userName,
+            company,
+            email,
+            phone,
+            description,
+            hashedPassword,
+            address,
+            city,
+            state,
+            courses,
+            terms: terms === 'on',
+            privacy: privacy === 'on',
+            role: "business",
+            createdAt: new Date().toISOString(),
+            schedule: [],
+            notificationSettings: {},
+            createdgroups: [],
+            joinedgroups: []
+        };
 
-    const insertInfo = await buserCollection.insertOne(newBuser);
-    if (!insertInfo.insertedId) throw 'Failed to create business user';
-    return await findBuserById(insertInfo.insertedId.toString());
+        const insertInfo = await buserCollection.insertOne(newBuser);
+        if (!insertInfo.insertedId) throw 'Failed to create business user';
+        
+        console.log('Business user created successfully, fetching created user...');
+        const createdUser = await findBuserById(insertInfo.insertedId.toString());
+        console.log('Created user fetched successfully');
+        return createdUser;
+    } catch (error) {
+        console.error('Error in createBuser:', error);
+        throw error;
+    }
 }
 
 async function findBuserById(buserId) {
@@ -287,7 +300,41 @@ async function getHostedEvents(buserId) {
     }));
 }
 
+async function createBusiness(businessData) {
+    console.log('createBusiness called with data:', { ...businessData, password: '[REDACTED]' });
+    const { company, email, password, userName, phone, description, address, city, state, courses, terms, privacy } = businessData;
+    
+    if (!terms || !privacy) {
+        console.error('Missing terms or privacy agreement');
+        throw 'Terms and privacy agreement are required';
+    }
+
+    try {
+        console.log('Creating business user...');
+        const result = await createBuser(
+            userName,
+            company,
+            email,
+            phone,
+            description || '',
+            password,
+            address,
+            city,
+            state,
+            courses || [],
+            terms,
+            privacy
+        );
+        console.log('Business user created successfully');
+        return result;
+    } catch (error) {
+        console.error('Error in createBusiness:', error);
+        throw error;
+    }
+}
+
 export {
+    createBusiness,
     createBuser,
     findBuserById,
     findBuserByUsername,

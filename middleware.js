@@ -31,7 +31,7 @@ const loginRouteMiddleware = (req, res, next) => {
         if (req.session.user.role === 'superuser') {
             return res.redirect('/profile/superuser');
         } else if (req.session.user.role === 'business') {
-            return res.redirect('/profile/business');
+            return res.redirect('/business/profile');
         } else if (req.session.user.role === 'user') {
             return res.redirect('/profile');
         }
@@ -45,7 +45,7 @@ const signupRouteMiddleware = (req, res, next) => {
         if (req.session.user.role === 'superuser') {
             return res.redirect('/profile/superuser');
         } else if (req.session.user.role === 'business') {
-            return res.redirect('/profile/business');
+            return res.redirect('/business/profile');
         } else if (req.session.user.role === 'user') {
             return res.redirect('/profile');
         }
@@ -64,9 +64,25 @@ const superuserRouteMiddleware = (req, res, next) => {
             message: 'You do not have permission to view this page.',
         });
     }
+    next();
+};
+
+const businessRouteMiddleware = (req, res, next) => {
+    if (!req.session || !req.session.user) {
+        return res.redirect('/auth/login');
+    }
+    if (req.session && req.session.user) {
+        if (req.session.user.role !== 'business') {
+            return res.status(403).render('error', {
+                title: 'Access Denied',
+                message: 'You do not have permission to view this page.',
+            });
+        }
+    }
 
     next();
 };
+
 const userRouteMiddleware = (req, res, next) => {
     if (!req.session || !req.session.user) {
         return res.redirect('/auth/login');
@@ -99,5 +115,6 @@ export default {
     signupRouteMiddleware,
     userRouteMiddleware,
     superuserRouteMiddleware,
+    businessRouteMiddleware,
     signoutRouteMiddleware
 };

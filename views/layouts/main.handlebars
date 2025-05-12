@@ -17,6 +17,9 @@
     {{#if (eq title 'Admin')}}
         <link rel="stylesheet" href="/public/css/admin.css">
     {{/if}}
+    {{#if (eq title 'Business Sign Up')}}
+    <link rel="stylesheet" href="/public/css/business.css">
+    {{/if}}
 </head>
 <body>
     <header>
@@ -37,6 +40,7 @@
                     {{/if}}
                     <li><a href="/auth/logout">Logout</a></li>
                 {{else}}
+                    <li><a href="/business/signup">Business Sign Up</a></li>
                     <li><a href="/auth/signup">Sign Up</a></li>
                 <li><a href="/auth/login">Login</a></li>
                 {{/if}}
